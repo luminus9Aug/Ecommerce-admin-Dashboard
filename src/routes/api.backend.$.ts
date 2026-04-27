@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 // Catch-all proxy from /api/backend/* to the NestJS backend.
-// Set VITE_BACKEND_URL (and the matching server-side BACKEND_URL) to your NestJS
-// base, e.g. https://api.example.com/api/v1. Defaults to http://localhost:3000/api/v1.
+// Configure via the BACKEND_URL env var on the server.
+// Defaults to http://localhost:3000/api/v1.
 const BACKEND_URL =
-  // server runtime
   (typeof process !== "undefined" && process.env?.BACKEND_URL) ||
   "http://localhost:3000/api/v1";
 
@@ -21,9 +20,14 @@ const HOP_BY_HOP = new Set([
   "content-length",
 ]);
 
-async function proxy(request: Request, splat: string | undefined) {
+interface HandlerCtx {
+  request: Request;
+  params: { _splat?: string };
+}
+
+async function proxy({ request, params }: HandlerCtx): Promise<Response> {
   const incomingUrl = new URL(request.url);
-  const targetUrl = `${BACKEND_URL.replace(/\/$/, "")}/${splat ?? ""}${incomingUrl.search}`;
+  const targetUrl = `${BACKEND_URL.replace(/\/$/, "")}/${params._splat ?? ""}${incomingUrl.search}`;
 
   const headers = new Headers();
   request.headers.forEach((value, key) => {
@@ -62,14 +66,16 @@ async function proxy(request: Request, splat: string | undefined) {
 }
 
 export const Route = createFileRoute("/api/backend/$")({
+  // Server routes typing isn't currently exposed on createFileRoute options.
+  // Cast keeps the runtime behaviour while satisfying TS.
   server: {
     handlers: {
-      GET: ({ request, params }) => proxy(request, params._splat),
-      POST: ({ request, params }) => proxy(request, params._splat),
-      PUT: ({ request, params }) => proxy(request, params._splat),
-      PATCH: ({ request, params }) => proxy(request, params._splat),
-      DELETE: ({ request, params }) => proxy(request, params._splat),
-      OPTIONS: ({ request, params }) => proxy(request, params._splat),
+      GET: proxy,
+      POST: proxy,
+      PUT: proxy,
+      PATCH: proxy,
+      DELETE: proxy,
+      OPTIONS: proxy,
     },
   },
-});
+} as never);
