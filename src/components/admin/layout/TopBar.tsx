@@ -6,6 +6,7 @@ import {
   KeyRound,
   LogOut,
   Menu,
+  MessageSquare,
   Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -239,7 +240,7 @@ export function TopBar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
-              <div>
+              <div className="flex justify-between items-center gap-2">
                 <p className="font-medium">
                   {profile
                     ? `${profile.firstName} ${profile.lastName}`
@@ -251,6 +252,9 @@ export function TopBar() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate({ to: "/admin/support" })}>
+              <MessageSquare className="mr-2 h-4 w-4" /> Support
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate({ to: "/admin/settings" })}>
               <KeyRound className="mr-2 h-4 w-4" /> Change Password
             </DropdownMenuItem>

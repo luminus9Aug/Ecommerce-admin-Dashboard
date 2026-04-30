@@ -28,15 +28,19 @@ export function useNotificationBadges() {
               adminApiClient
                 .get("/users", {
                   params: { role: "b2b", isApproved: false, limit: 1 },
+                  ...{ _silent: true } as any
                 })
-                .then((r) => r.data),
+                .then((r) => r.data?.data || r.data),
             (v: { total?: number }) => v?.total ?? 0,
           ),
           safeCount(
             () =>
               adminApiClient
-                .get("/b2b/quotes/all", { params: { status: "pending" } })
-                .then((r) => r.data),
+                .get("/b2b/quotes/all", { 
+                  params: { status: "pending" },
+                  ...{ _silent: true } as any
+                })
+                .then((r) => r.data?.data || r.data),
             (v: unknown) => (Array.isArray(v) ? v.length : 0),
           ),
           safeCount(
@@ -44,13 +48,14 @@ export function useNotificationBadges() {
               adminApiClient
                 .get("/support/tickets/all", {
                   params: { status: "open", limit: 1 },
+                  ...{ _silent: true } as any
                 })
-                .then((r) => r.data),
+                .then((r) => r.data?.data || r.data),
             (v: { total?: number }) => v?.total ?? 0,
           ),
           safeCount(
             () =>
-              adminApiClient.get("/b2b/credit-terms").then((r) => r.data),
+              adminApiClient.get("/b2b/credit-terms", { _silent: true } as any).then((r) => r.data?.data || r.data),
             (v: unknown) =>
               Array.isArray(v)
                 ? v.filter((c: { status?: string }) => c?.status === "pending").length

@@ -12,8 +12,8 @@ export function useCategories() {
   return useQuery<Category[]>({
     queryKey: adminQueryKeys.categories,
     queryFn: async () => {
-      const { data } = await adminApiClient.get<Category[]>("/categories");
-      return Array.isArray(data) ? data : [];
+      const { data } = await adminApiClient.get<any>("/categories");
+      return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
     },
     staleTime: 60_000,
   });

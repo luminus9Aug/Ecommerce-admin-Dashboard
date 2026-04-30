@@ -39,8 +39,9 @@ const COLOR_MAP: Record<string, string> = {
   "quote:converted": "bg-blue-100 text-blue-800",
 };
 
-function humanize(s: string) {
-  return s
+function humanize(s?: string) {
+  if (!s) return "Unknown";
+  return String(s)
     .replace(/_/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }

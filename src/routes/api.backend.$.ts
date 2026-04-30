@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { env } from "@/lib/env";
 
-// Catch-all proxy from /api/backend/* to the NestJS backend.
-// Configure via the BACKEND_URL env var on the server.
-// Defaults to http://localhost:3000/api/v1.
-const BACKEND_URL =
-  (typeof process !== "undefined" && process.env?.BACKEND_URL) ||
-  "http://localhost:3000/api/v1";
+const BACKEND_URL = env.VITE_BACKEND_URL;
 
 const HOP_BY_HOP = new Set([
   "host",
@@ -18,6 +14,8 @@ const HOP_BY_HOP = new Set([
   "transfer-encoding",
   "upgrade",
   "content-length",
+  "accept-encoding",
+  "content-encoding"
 ]);
 
 interface HandlerCtx {
@@ -44,11 +42,54 @@ async function proxy({ request, params }: HandlerCtx): Promise<Response> {
   }
 
   try {
+    const incomingCookie = request.headers.get('cookie');
+    console.log(`[PROXY REQUEST] ${request.method} ${targetUrl} - Cookie present: ${!!incomingCookie}`);
+    if (incomingCookie) {
+      console.log(`[PROXY REQUEST] Cookies: ${incomingCookie.split(';').map(c => c.split('=')[0].trim()).join(', ')}`);
+    }
+
     const upstream = await fetch(targetUrl, init);
     const respHeaders = new Headers();
     upstream.headers.forEach((value, key) => {
+      if (key.toLowerCase() === 'set-cookie') return;
       if (!HOP_BY_HOP.has(key.toLowerCase())) respHeaders.set(key, value);
     });
+    
+    console.log(`[PROXY RESPONSE] ${request.method} ${targetUrl} - Status: ${upstream.status}`);
+    
+    // Function to sanitize cookies for local development
+    const sanitizeCookie = (cookie: string) => {
+      return cookie
+        .split(';')
+        .map(part => part.trim())
+        .filter(part => {
+          const lowerPart = part.toLowerCase();
+          // Strip Secure flag (needed for http://localhost)
+          if (lowerPart === 'secure') return false;
+          // Strip Domain attribute (can interfere with localhost)
+          if (lowerPart.startsWith('domain=')) return false;
+          // Strip SameSite=None (requires Secure)
+          if (lowerPart === 'samesite=none') return false;
+          return true;
+        })
+        .join('; ') + '; SameSite=Lax';
+    };
+
+    if (typeof upstream.headers.getSetCookie === 'function') {
+      const cookies = upstream.headers.getSetCookie();
+      for (const cookie of cookies) {
+        const cleanCookie = sanitizeCookie(cookie);
+        console.log(`[PROXY] Sanitized Cookie: ${cleanCookie.split(';')[0]}...`);
+        respHeaders.append('set-cookie', cleanCookie);
+      }
+    } else {
+      const cookie = upstream.headers.get('set-cookie');
+      if (cookie) {
+        const cleanCookie = sanitizeCookie(cookie);
+        respHeaders.append('set-cookie', cleanCookie);
+      }
+    }
+    
     return new Response(upstream.body, {
       status: upstream.status,
       statusText: upstream.statusText,
@@ -66,8 +107,6 @@ async function proxy({ request, params }: HandlerCtx): Promise<Response> {
 }
 
 export const Route = createFileRoute("/api/backend/$")({
-  // Server routes typing isn't currently exposed on createFileRoute options.
-  // Cast keeps the runtime behaviour while satisfying TS.
   server: {
     handlers: {
       GET: proxy,

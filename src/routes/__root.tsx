@@ -8,6 +8,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
+import { env } from "@/lib/env";
 
 interface RouterContext {
   queryClient: QueryClient;
@@ -37,8 +38,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Bangles Jaipur Admin" },
-      { name: "description", content: "Bangles Jaipur Admin Dashboard" },
+      { title: `${env.VITE_COMPANY_NAME} Administrative Portal` },
+      { name: "description", content: `${env.VITE_COMPANY_NAME} Administrative Portal` },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

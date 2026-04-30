@@ -27,6 +27,7 @@ import { useProducts } from "@/lib/admin/hooks/useProducts";
 import { useAdminProfile, useLogout } from "@/lib/admin/hooks/useAdminAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { env } from "@/lib/env";
 
 function Group({
   label,
@@ -62,176 +63,154 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-30 flex flex-col bg-slate-900 text-white transition-all duration-200 ${
-        collapsed ? "w-16" : "w-60"
-      } hidden md:flex`}
+      className={`fixed inset-y-0 left-0 z-30 flex flex-col bg-slate-900 text-white transition-all duration-200 ${collapsed ? "w-16" : "w-60"
+        } hidden md:flex`}
     >
       {/* Brand */}
       <div className="flex h-14 items-center border-b border-slate-800 px-4">
         <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-600 text-sm font-bold">
-          BJ
+          {env.VITE_COMPANY_NAME.substring(0, 2).toUpperCase()}
         </div>
         {!collapsed && (
           <div className="ml-2 truncate text-sm font-semibold">
-            Bangles Jaipur
+            {env.VITE_COMPANY_NAME}
           </div>
         )}
       </div>
 
       {/* Nav */}
       <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-3">
-        <Group label="Overview" collapsed={collapsed}>
-          <NavItem
-            href="/admin"
-            icon={LayoutDashboard}
-            label="Dashboard"
-            collapsed={collapsed}
-          />
-          <NavItem
+        <NavItem
+          href="/admin"
+          icon={LayoutDashboard}
+          label="Dashboard"
+          collapsed={collapsed}
+        />
+        {/* <NavItem
             href="/admin/analytics"
             icon={TrendingUp}
             label="Analytics"
             collapsed={collapsed}
-          />
-        </Group>
+          /> */}
+        <NavItem
+          href="/admin/products"
+          icon={Package}
+          label="Products"
+          badge={lowStockCount}
+          badgeColor="orange"
+          collapsed={collapsed}
+        />
+        <NavItem
+          href="/admin/categories"
+          icon={Tag}
+          label="Categories"
+          collapsed={collapsed}
+        />
+        <NavItem
+          href="/admin/orders"
+          icon={ShoppingCart}
+          label="Orders"
+          collapsed={collapsed}
+        />
+        <NavItem
+          href="/admin/payments"
+          icon={CreditCard}
+          label="Payments"
+          collapsed={collapsed}
+        />
+        <NavItem
+          href="/admin/users"
+          icon={Users}
+          label="All Users"
+          badge={badges?.pendingB2BApprovals}
+          badgeColor="red"
+          collapsed={collapsed}
+        />
+        <NavItem
+          href="/admin/b2b/companies"
+          icon={Building2}
+          label="B2B Companies"
+          collapsed={collapsed}
+        />
 
-        <Group label="Catalog" collapsed={collapsed}>
-          <NavItem
-            href="/admin/products"
-            icon={Package}
-            label="Products"
-            badge={lowStockCount}
-            badgeColor="orange"
-            collapsed={collapsed}
-          />
-          <NavItem
-            href="/admin/categories"
-            icon={Tag}
-            label="Categories"
-            collapsed={collapsed}
-          />
-        </Group>
-
-        <Group label="Sales" collapsed={collapsed}>
-          <NavItem
-            href="/admin/orders"
-            icon={ShoppingCart}
-            label="Orders"
-            collapsed={collapsed}
-          />
-          <NavItem
-            href="/admin/payments"
-            icon={CreditCard}
-            label="Payments"
-            collapsed={collapsed}
-          />
-        </Group>
-
-        <Group label="Users" collapsed={collapsed}>
-          <NavItem
-            href="/admin/users"
-            icon={Users}
-            label="All Users"
-            badge={badges?.pendingB2BApprovals}
-            badgeColor="red"
-            collapsed={collapsed}
-          />
-          <NavItem
-            href="/admin/b2b/companies"
-            icon={Building2}
-            label="B2B Companies"
-            collapsed={collapsed}
-          />
-        </Group>
-
-        <Group label="B2B" collapsed={collapsed}>
-          <NavItem
-            href="/admin/b2b/quotes"
-            icon={FileText}
-            label="Quotes"
-            badge={badges?.pendingQuotes}
-            badgeColor="red"
-            collapsed={collapsed}
-          />
-          <NavItem
+        <NavItem
+          href="/admin/b2b/quotes"
+          icon={FileText}
+          label="Quotes"
+          badge={badges?.pendingQuotes}
+          badgeColor="red"
+          collapsed={collapsed}
+        />
+        {/* <NavItem
             href="/admin/b2b/credit-terms"
             icon={Banknote}
             label="Credit Terms"
             collapsed={collapsed}
-          />
-          <NavItem
-            href="/admin/b2b/invoices"
-            icon={Receipt}
-            label="Invoices"
-            collapsed={collapsed}
-          />
-        </Group>
+          /> */}
+        <NavItem
+          href="/admin/b2b/invoices"
+          icon={Receipt}
+          label="Invoices"
+          collapsed={collapsed}
+        />
 
-        <Group label="Content" collapsed={collapsed}>
-          <NavItem
-            href="/admin/content/banners"
-            icon={Image}
-            label="Banners"
-            collapsed={collapsed}
-          />
-          <NavItem
-            href="/admin/content/blog"
-            icon={BookOpen}
-            label="Blog"
-            collapsed={collapsed}
-          />
-          <NavItem
-            href="/admin/content/faq"
-            icon={HelpCircle}
-            label="FAQ"
-            collapsed={collapsed}
-          />
-          <NavItem
+        <NavItem
+          href="/admin/content/banners"
+          icon={Image}
+          label="Banners"
+          collapsed={collapsed}
+        />
+        <NavItem
+          href="/admin/content/blog"
+          icon={BookOpen}
+          label="Blog"
+          collapsed={collapsed}
+        />
+        <NavItem
+          href="/admin/content/faq"
+          icon={HelpCircle}
+          label="FAQ"
+          collapsed={collapsed}
+        />
+        {/* <NavItem
             href="/admin/content/themes"
             icon={Palette}
             label="Themes"
             collapsed={collapsed}
-          />
-        </Group>
+          /> */}
 
-        <Group label="Marketing" collapsed={collapsed}>
-          <NavItem
-            href="/admin/marketing/coupons"
-            icon={Ticket}
-            label="Coupons"
-            collapsed={collapsed}
-          />
-          <NavItem
-            href="/admin/marketing/newsletter"
-            icon={Mail}
-            label="Newsletter"
-            collapsed={collapsed}
-          />
-        </Group>
+        <NavItem
+          href="/admin/marketing/coupons"
+          icon={Ticket}
+          label="Coupons"
+          collapsed={collapsed}
+        />
+        <NavItem
+          href="/admin/marketing/newsletter"
+          icon={Mail}
+          label="Newsletter"
+          collapsed={collapsed}
+        />
+        <NavItem
+          href="/admin/support"
+          icon={MessageSquare}
+          label="Tickets"
+          badge={badges?.openTickets}
+          badgeColor="red"
+          collapsed={collapsed}
+        />
 
-        <Group label="Support" collapsed={collapsed}>
-          <NavItem
-            href="/admin/support"
-            icon={MessageSquare}
-            label="Tickets"
-            badge={badges?.openTickets}
-            badgeColor="red"
-            collapsed={collapsed}
-          />
-        </Group>
+        <NavItem
+          href="/admin/settings"
+          icon={Settings}
+          label="Settings"
+          collapsed={collapsed}
+        />
 
-        <Group label="System" collapsed={collapsed}>
-          <NavItem
-            href="/admin/settings"
-            icon={Settings}
-            label="Settings"
-            collapsed={collapsed}
-          />
-        </Group>
       </nav>
 
       {/* Footer: profile */}
-      <div className="border-t border-slate-800 p-3">
+      {/* <div className="border-t border-slate-800 p-3">
         {collapsed ? (
           <button
             onClick={() => logout.mutate()}
@@ -278,7 +257,7 @@ export function Sidebar() {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
     </aside>
   );
 }

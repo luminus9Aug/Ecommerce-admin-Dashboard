@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLogin } from "@/lib/admin/hooks/useAdminAuth";
+import { env } from "@/lib/env";
 
 export const Route = createFileRoute("/admin/login")({
   component: LoginPage,
@@ -45,9 +46,9 @@ function LoginPage() {
       >
         <div className="text-center">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded bg-blue-600 text-sm font-bold text-white">
-            BJ
+            {env.VITE_COMPANY_NAME.substring(0, 2).toUpperCase()}
           </div>
-          <h1 className="text-xl font-bold text-slate-900">Bangles Jaipur Admin</h1>
+          <h1 className="text-xl font-bold text-slate-900">{env.VITE_COMPANY_NAME} Administrative Portal</h1>
           <p className="mt-1 text-sm text-slate-500">Sign in to your account</p>
         </div>
 

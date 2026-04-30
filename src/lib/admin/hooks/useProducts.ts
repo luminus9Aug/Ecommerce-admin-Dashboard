@@ -4,9 +4,9 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
-import adminApiClient from "../api-client";
 import { adminQueryKeys } from "../query-keys";
 import type { PaginatedResponse, Product } from "@/types/admin";
+import { productAdapter } from "../../api/adapters/ProductAdapter";
 
 export interface ProductFilters {
   page?: number;
@@ -21,13 +21,7 @@ export interface ProductFilters {
 export function useProducts(filters: ProductFilters) {
   return useQuery<PaginatedResponse<Product>>({
     queryKey: adminQueryKeys.products(filters),
-    queryFn: async () => {
-      const { data } = await adminApiClient.get<PaginatedResponse<Product>>(
-        "/products",
-        { params: filters },
-      );
-      return data;
-    },
+    queryFn: () => productAdapter.getProducts(filters),
     staleTime: 30_000,
   });
 }
@@ -35,10 +29,7 @@ export function useProducts(filters: ProductFilters) {
 export function useProduct(id: string | undefined) {
   return useQuery<Product>({
     queryKey: adminQueryKeys.product(id ?? ""),
-    queryFn: async () => {
-      const { data } = await adminApiClient.get<Product>(`/products/id/${id}`);
-      return data;
-    },
+    queryFn: () => productAdapter.getProductById(id!),
     enabled: Boolean(id),
   });
 }
@@ -46,13 +37,7 @@ export function useProduct(id: string | undefined) {
 export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<Product>) => {
-      const { data } = await adminApiClient.post<Product>(
-        "/products",
-        payload,
-      );
-      return data;
-    },
+    mutationFn: (payload: Partial<Product>) => productAdapter.createProduct(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
       toast.success("Product created successfully");
@@ -63,13 +48,7 @@ export function useCreateProduct() {
 export function useUpdateProduct(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<Product>) => {
-      const { data } = await adminApiClient.patch<Product>(
-        `/products/${id}`,
-        payload,
-      );
-      return data;
-    },
+    mutationFn: (payload: Partial<Product>) => productAdapter.updateProduct(id, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
       toast.success("Product updated successfully");
@@ -80,9 +59,7 @@ export function useUpdateProduct(id: string) {
 export function useDeleteProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
-      await adminApiClient.delete(`/products/${id}`);
-    },
+    mutationFn: (id: string) => productAdapter.deleteProduct(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
       toast.success("Product deleted");
@@ -93,16 +70,8 @@ export function useDeleteProduct() {
 export function useBulkUpdateProducts() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: {
-      ids: string[];
-      data: Partial<Product>;
-    }) => {
-      const { data } = await adminApiClient.patch(
-        "/admin/stats/products/bulk-update",
-        payload,
-      );
-      return data;
-    },
+    mutationFn: (payload: { ids: string[]; data: Partial<Product> }) =>
+      productAdapter.bulkUpdate(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
       toast.success("Products updated");
@@ -113,11 +82,7 @@ export function useBulkUpdateProducts() {
 export function useBulkDeleteProducts() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (ids: string[]) => {
-      await adminApiClient.delete("/admin/stats/products/bulk-delete", {
-        data: { ids },
-      });
-    },
+    mutationFn: (ids: string[]) => productAdapter.bulkDelete(ids),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
       toast.success("Products deleted");

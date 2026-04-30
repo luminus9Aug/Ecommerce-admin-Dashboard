@@ -1,5 +1,3 @@
-// All types are exactly as defined in the spec (Section 5).
-
 // ─── Auth ────────────────────────────────────────────────
 export interface AdminUser {
   id: string;

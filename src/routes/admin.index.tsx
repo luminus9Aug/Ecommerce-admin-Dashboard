@@ -18,6 +18,7 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  IndianRupeeIcon,
 } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { PageHeader } from "@/components/admin/shared/PageHeader";
@@ -57,30 +58,27 @@ function DashboardPage() {
   const health = useHealth();
 
   const o = stats.data;
+  console.log('Data ==>', o);
+
 
   return (
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Overview of your store" />
 
-      {/* Row 1: KPI cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Revenue"
-          value={o ? formatCurrency(o.totalRevenue) : "—"}
-          subtext={
-            o ? `${o.revenueChange.toFixed(1)}% vs last month` : undefined
-          }
+          value={o?.totalRevenue?.toLocaleString() ?? ""}
+          subtext={o && o.revenueChange > 0 ? `+${o.revenueChange.toFixed(2)}% vs last month` : 'No revenue this month'}
           trend={o?.revenueChange}
-          icon={DollarSign}
+          icon={IndianRupeeIcon}
           iconBgClass="bg-green-100 text-green-700"
           loading={stats.isLoading}
         />
         <StatCard
           title="Total Orders"
-          value={o?.totalOrders?.toLocaleString() ?? "—"}
-          subtext={
-            o ? `${o.ordersChange.toFixed(1)}% vs last month` : undefined
-          }
+          value={o?.totalOrders?.toLocaleString() ?? ""}
+          subtext={o && o.ordersChange > 0 ? `${o.ordersChange.toFixed(2)}% vs last month` : 'No orders this month'}
           trend={o?.ordersChange}
           icon={ShoppingCart}
           iconBgClass="bg-blue-100 text-blue-700"
@@ -89,7 +87,7 @@ function DashboardPage() {
         <StatCard
           title="Total Users"
           value={o?.totalUsers?.toLocaleString() ?? "—"}
-          subtext={o ? `+${o.newUsersThisMonth} this month` : undefined}
+          subtext={o && o.newUsersThisMonth > 0 ? `+${o.newUsersThisMonth} this month` : 'No new users this month'}
           icon={Users}
           iconBgClass="bg-purple-100 text-purple-700"
           loading={stats.isLoading}
@@ -106,7 +104,6 @@ function DashboardPage() {
         </Link>
       </div>
 
-      {/* Row 2: Revenue chart */}
       <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-800">Revenue Overview</h2>
@@ -160,7 +157,6 @@ function DashboardPage() {
         </div>
       </Card>
 
-      {/* Row 3: Top products + Top customers */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         <Card className="p-6 lg:col-span-3">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">Top Products</h2>
@@ -239,7 +235,6 @@ function DashboardPage() {
         </Card>
       </div>
 
-      {/* Row 4: Recent orders + Action items */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         <Card className="p-6 lg:col-span-3">
           <div className="mb-4 flex items-center justify-between">
@@ -298,7 +293,6 @@ function DashboardPage() {
         </Card>
       </div>
 
-      {/* Footer health bar */}
       <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs text-slate-600">
         {health.data ? (
           <>

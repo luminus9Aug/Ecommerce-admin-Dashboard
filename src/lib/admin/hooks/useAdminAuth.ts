@@ -17,8 +17,8 @@ export function useAdminProfile(enabled = true) {
   return useQuery<AdminUser>({
     queryKey: ["admin", "auth", "profile"],
     queryFn: async () => {
-      const { data } = await adminApiClient.get<AdminUser>("/users/profile");
-      return data;
+      const { data } = await adminApiClient.get<any>("/users/profile");
+      return data?.data || data;
     },
     enabled,
     retry: false,

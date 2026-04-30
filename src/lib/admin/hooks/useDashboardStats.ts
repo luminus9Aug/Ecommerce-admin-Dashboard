@@ -12,10 +12,10 @@ export function useOverviewStats() {
   return useQuery<OverviewStats>({
     queryKey: adminQueryKeys.overviewStats,
     queryFn: async () => {
-      const { data } = await adminApiClient.get<OverviewStats>(
+      const { data } = await adminApiClient.get<any>(
         "/admin/stats/overview",
       );
-      return data;
+      return data?.data || data || {};
     },
     staleTime: 30_000,
   });
@@ -25,11 +25,11 @@ export function useRevenueStats(startDate: string, endDate: string) {
   return useQuery<RevenueDataPoint[]>({
     queryKey: adminQueryKeys.revenueStats(startDate, endDate),
     queryFn: async () => {
-      const { data } = await adminApiClient.get<RevenueDataPoint[]>(
+      const { data } = await adminApiClient.get<any>(
         "/admin/stats/revenue",
         { params: { startDate, endDate } },
       );
-      return data;
+      return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
     },
     enabled: Boolean(startDate && endDate),
     staleTime: 30_000,
@@ -40,10 +40,10 @@ export function useTopProducts() {
   return useQuery<TopProduct[]>({
     queryKey: adminQueryKeys.topProducts,
     queryFn: async () => {
-      const { data } = await adminApiClient.get<TopProduct[]>(
+      const { data } = await adminApiClient.get<any>(
         "/admin/stats/top-products",
       );
-      return data;
+      return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
     },
     staleTime: 60_000,
   });
@@ -53,10 +53,10 @@ export function useTopCustomers() {
   return useQuery<TopCustomer[]>({
     queryKey: adminQueryKeys.topCustomers,
     queryFn: async () => {
-      const { data } = await adminApiClient.get<TopCustomer[]>(
+      const { data } = await adminApiClient.get<any>(
         "/admin/stats/top-customers",
       );
-      return data;
+      return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
     },
     staleTime: 60_000,
   });
