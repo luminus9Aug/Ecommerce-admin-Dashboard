@@ -10,8 +10,10 @@ export interface AdminUser {
 // ─── Stats ───────────────────────────────────────────────
 export interface OverviewStats {
   totalRevenue: number;
+  revenueThisMonth: number;
   revenueChange: number;
   totalOrders: number;
+  ordersThisMonth: number;
   ordersChange: number;
   totalUsers: number;
   newUsersThisMonth: number;

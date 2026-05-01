@@ -5,6 +5,8 @@ export const adminQueryKeys = {
     ["admin", "stats", "revenue", startDate, endDate] as const,
   topProducts: ["admin", "stats", "top-products"] as const,
   topCustomers: ["admin", "stats", "top-customers"] as const,
+  dashboardData: (startDate: string, endDate: string) =>
+    ["admin", "stats", "dashboard", startDate, endDate] as const,
 
   // Products
   products: (filters: object) => ["admin", "products", filters] as const,
