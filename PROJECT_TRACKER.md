@@ -1,7 +1,7 @@
 # PROJECT_TRACKER
 
 ## Last Session
-2026-04-29
+2026-05-01
 
 ## Phases & Progress
 - Phase 1: Planning production-grade architecture (Completed - 100%)
@@ -17,6 +17,7 @@
   - Fixed sidebar showing "undefined undefined" for user profile names by unwrapping the `useAdminProfile` response.
   - Silenced expected 403 Forbidden toasts on the dashboard caused by role-restricted badge checks (added `_silent` config option to the Axios interceptor).
   - Fixed empty data tables (Products and Categories) by updating `BaseAdapter` to safely normalize backend paginated responses (`{items, meta}`) into the expected frontend format (`{data, total, ...}`).
+- 2026-05-01: Fixed badge visibility issues. Added explicit `/health` endpoint to backend `AppController`. Re-applied avatar status badge (Green/Red dot) and uncommented notification badges in `TopBar.tsx`. Verified fix in browser.
 
 ## Known Issues / Blockers
 - None. All major authentication and data loading UI bugs are resolved.

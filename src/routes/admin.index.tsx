@@ -46,7 +46,7 @@ function DashboardPage() {
   const { startDate, endDate } = useMemo(() => {
     const end = new Date();
     const start = subDays(end, 30);
-    return { startDate: start.toISOString(), endDate: end.toISOString() };
+    return { startDate: '2026-03-31', endDate: '2026-05-30' };
   }, []);
 
   const stats = useOverviewStats();
@@ -55,10 +55,9 @@ function DashboardPage() {
   const topCustomers = useTopCustomers();
   const recentOrders = useOrders({ page: 1, limit: 10 });
   const badges = useNotificationBadges();
-  const health = useHealth();
 
   const o = stats.data;
-  console.log('Data ==>', o);
+  console.log('Data ==>', revenue.data);
 
 
   return (
@@ -94,7 +93,7 @@ function DashboardPage() {
         />
         <Link to="/admin/users" className="block">
           <StatCard
-            title="Pending B2B Approvals"
+            title="Pending Company Approvals"
             value={o?.pendingB2BApprovals ?? "—"}
             subtext="Require your review"
             icon={Clock}
@@ -117,15 +116,15 @@ function DashboardPage() {
               <AreaChart data={revenue.data ?? []}>
                 <defs>
                   <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#2563eb" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="#2563eb" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#eb2525ff" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#28eb25ff" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis
                   dataKey="date"
                   tickFormatter={(v) => format(new Date(v), "MMM dd")}
-                  fontSize={12}
+                  fontSize={8}
                 />
                 <YAxis yAxisId="left" fontSize={12} />
                 <YAxis yAxisId="right" orientation="right" fontSize={12} />
@@ -291,22 +290,6 @@ function DashboardPage() {
             <ActionRow href="/admin/b2b/credit-terms" label="Credit term applications" count={badges.data?.pendingCreditTerms ?? 0} color="bg-yellow-100 text-yellow-700" />
           </div>
         </Card>
-      </div>
-
-      <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs text-slate-600">
-        {health.data ? (
-          <>
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-            <span>API Operational</span>
-          </>
-        ) : health.isError ? (
-          <>
-            <XCircle className="h-4 w-4 text-red-600" />
-            <span>API Degraded</span>
-          </>
-        ) : (
-          <span>Checking…</span>
-        )}
       </div>
     </div>
   );

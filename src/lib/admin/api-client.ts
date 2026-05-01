@@ -2,8 +2,10 @@ import axios from "axios";
 import { toast } from "sonner";
 import { env } from "../env";
 
+const baseURL = env.VITE_USE_PROXY ? env.VITE_API_BASE_URL : env.VITE_BACKEND_URL;
+
 const adminApiClient = axios.create({
-  baseURL: env.VITE_API_BASE_URL,
+  baseURL,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
@@ -13,23 +15,20 @@ let refreshPromise: Promise<string> | null = null;
 // Request interceptor for debug logging
 adminApiClient.interceptors.request.use(
   (config) => {
-    console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, config.data || "");
     return config;
   },
   (error) => {
-    console.error(`[API Request Error]`, error);
     return Promise.reject(error);
   }
 );
 
 adminApiClient.interceptors.response.use(
   (response) => {
-    console.log(`[API Response] ${response.config.method?.toUpperCase()} ${response.config.url} - Status: ${response.status}`, response.data);
+    // console.log(`[API Response] ${response.config.method?.toUpperCase()} ${response.config.url} - Status: ${response.status}`, response.data);
     return response;
   },
   async (error) => {
     const originalRequest = error.config ?? {};
-    console.error(`[API Response Error] ${originalRequest.method?.toUpperCase()} ${originalRequest.url} - Status: ${error.response?.status}`, error.response?.data || error.message);
 
     // Do not intercept refresh calls (to avoid infinite loops) or login calls (where 401 just means bad password)
     if (
@@ -83,7 +82,6 @@ adminApiClient.interceptors.response.use(
 
         return adminApiClient(originalRequest);
       } catch (refreshError) {
-        console.error(`[API Auth] Token refresh failed.`);
         if (typeof window !== "undefined") {
           window.location.href = "/admin/login";
         }

@@ -129,7 +129,7 @@ export function Sidebar() {
         <NavItem
           href="/admin/b2b/companies"
           icon={Building2}
-          label="B2B Companies"
+          label="Company Requests"
           collapsed={collapsed}
         />
 
