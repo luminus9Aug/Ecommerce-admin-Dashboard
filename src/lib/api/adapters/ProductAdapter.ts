@@ -1,6 +1,6 @@
 import { BaseAdapter } from "./BaseAdapter";
 import { API_ENDPOINTS } from "../endpoints";
-import type { PaginatedResponse, Product } from "@/types/admin";
+import type { PaginatedResponse, Product, CreateProductPayload } from "@/types/admin";
 import type { ProductFilters } from "../../admin/hooks/useProducts";
 
 class ProductAdapter extends BaseAdapter {
@@ -12,7 +12,7 @@ class ProductAdapter extends BaseAdapter {
     return this.get<Product>(API_ENDPOINTS.PRODUCTS.BY_ID(id));
   }
 
-  public async createProduct(payload: Partial<Product>): Promise<Product> {
+  public async createProduct(payload: CreateProductPayload): Promise<Product> {
     return this.post<Product>(API_ENDPOINTS.PRODUCTS.BASE, payload);
   }
 
@@ -21,7 +21,7 @@ class ProductAdapter extends BaseAdapter {
   }
 
   public async deleteProduct(id: string): Promise<void> {
-    return this.delete<void>(API_ENDPOINTS.PRODUCTS.UPDATE(id));
+    return this.delete<void>(API_ENDPOINTS.PRODUCTS.DELETE(id));
   }
 
   public async bulkUpdate(payload: { ids: string[]; data: Partial<Product> }): Promise<any> {
