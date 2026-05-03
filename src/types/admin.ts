@@ -461,6 +461,24 @@ export interface Tenant {
   createdAt: string;
 }
 
+// ─── Ad Slots ───────────────────────────────────────────
+export interface AdSlot {
+  id: string;
+  position: string;
+  slot: number;
+  imageUrl: string;
+  title: string;
+  subtitle?: string;
+  ctaText: string;
+  ctaLink: string;
+  bgColor: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CreateAdSlotPayload = Omit<AdSlot, "id" | "createdAt" | "updatedAt">;
+
 // ─── Notification Badges ──────────────────────────────────
 export interface NotificationBadges {
   pendingB2BApprovals: number;

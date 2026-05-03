@@ -50,5 +50,10 @@ export const API_ENDPOINTS = {
     BY_ID: (id: string) => `/blog/posts/id/${id}`,
     BY_SLUG: (slug: string) => `/blog/posts/${slug}`,
   },
+  AD_SLOTS: {
+    BASE: "/ad-slots",
+    ADMIN_ALL: "/ad-slots/admin/all",
+    BY_ID: (id: string) => `/ad-slots/${id}`,
+  },
   HEALTH: "/health",
 };

@@ -192,6 +192,12 @@ export function Sidebar() {
           collapsed={collapsed}
         />
         <NavItem
+          href="/admin/ad-slots"
+          icon={Image}
+          label="Ad Slots"
+          collapsed={collapsed}
+        />
+        <NavItem
           href="/admin/support"
           icon={MessageSquare}
           label="Tickets"
