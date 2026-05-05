@@ -21,16 +21,16 @@ export function AdSlotsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <PageHeader 
-          title="Ad Slots" 
-          description="Manage promotional ad slots across the store" 
-        />
-        <Button onClick={handleAdd} className="bg-blue-600 hover:bg-blue-700 text-white">
-          <Plus className="mr-2 h-4 w-4" /> Add Ad Slot
-        </Button>
-      </div>
+    <div className="space-y-6 p-6">
+      <PageHeader 
+        title="Ad Slots" 
+        description="Manage promotional ad slots across the store" 
+        actions={
+          <Button onClick={handleAdd} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Plus className="mr-2 h-4 w-4" /> Add Ad Slot
+          </Button>
+        }
+      />
 
       <AdSlotTable onEdit={handleEdit} />
 

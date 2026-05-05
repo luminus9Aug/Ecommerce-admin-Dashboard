@@ -1,9 +1,17 @@
 import { useState, useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/admin/shared/DataTable";
-import { StatusBadge } from "@/components/admin/shared/StatusBadge";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Edit2, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { MoreHorizontal, Edit2, Trash2, Calendar } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,19 +31,46 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useAdSlots, useDeleteAdSlot } from "@/lib/admin/hooks/useAdSlots";
-import type { AdSlot } from "@/types/admin";
+import { useAdSlots, useDeleteAdSlot, useUpdateAdSlot } from "@/lib/admin/hooks/useAdSlots";
+import { AdSlotType, AdSlotVariant, type AdSlot } from "@/types/admin";
+import { cn } from "@/lib/utils";
+
+const AD_POSITIONS = [
+  { value: "all", label: "All Positions" },
+  { value: "hero-banner", label: "Hero Banner" },
+  { value: "category-sidebar-top", label: "Category Sidebar Top" },
+  { value: "category-sidebar-bottom", label: "Category Sidebar Bottom" },
+  { value: "featured-sidebar-top", label: "Featured Sidebar Top" },
+  { value: "featured-banner", label: "Featured Banner" },
+  { value: "deals-banner", label: "Deals Banner" },
+  { value: "promo-strip", label: "Promo Strip" },
+  { value: "arrivals-sidebar", label: "Arrivals Sidebar" },
+];
 
 interface AdSlotTableProps {
   onEdit: (ad: AdSlot) => void;
 }
 
 export function AdSlotTable({ onEdit }: AdSlotTableProps) {
+  const [position, setPosition] = useState("all");
+  const [type, setType] = useState("all");
+  const [variantFilter, setVariantFilter] = useState("all");
+  const [isActive, setIsActive] = useState("all");
+  const [limit] = useState(10);
   const [cursor, setCursor] = useState<string | undefined>();
-  const [limit, setLimit] = useState(10);
 
-  const { data, isLoading } = useAdSlots({ cursor, limit });
+  const filters = {
+    position: position === "all" ? undefined : position,
+    type: type === "all" ? undefined : type,
+    variant: variantFilter === "all" ? undefined : variantFilter,
+    isActive: isActive === "all" ? undefined : isActive === "active",
+    limit,
+    cursor,
+  };
+
+  const { data, isLoading } = useAdSlots(filters);
   const { mutate: deleteAdSlot } = useDeleteAdSlot();
+  const { mutate: updateAdSlot } = useUpdateAdSlot(""); // ID will be passed in mutate
 
   const columns = useMemo<ColumnDef<AdSlot>[]>(() => [
     {
@@ -44,40 +79,88 @@ export function AdSlotTable({ onEdit }: AdSlotTableProps) {
       cell: ({ row }) => (
         <img 
           src={row.original.imageUrl} 
-          alt={row.original.title} 
+          alt={row.original.altText || "Ad Preview"} 
           className="h-10 w-10 rounded object-cover border" 
+          loading="lazy"
         />
       ),
-    },
-    {
-      accessorKey: "slot",
-      header: "Slot #",
     },
     {
       accessorKey: "position",
       header: "Position",
       cell: ({ row }) => (
-        <span className="capitalize">{row.original.position.replace("-", " ")}</span>
+        <Badge variant="outline" className="capitalize">
+          {row.original.position.replace(/-/g, " ")}
+        </Badge>
       ),
     },
     {
-      accessorKey: "title",
-      header: "Title",
+      accessorKey: "type",
+      header: "Type",
+      cell: ({ row }) => {
+        const type = row.original.type;
+        return (
+          <Badge 
+            className={cn(
+              type === AdSlotType.AD && "bg-blue-100 text-blue-800 hover:bg-blue-100",
+              type === AdSlotType.BANNER && "bg-purple-100 text-purple-800 hover:bg-purple-100",
+              type === AdSlotType.PROMO_STRIP && "bg-amber-100 text-amber-800 hover:bg-amber-100"
+            )}
+          >
+            {type}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "variant",
+      header: "Variant",
       cell: ({ row }) => (
-        <div className="max-w-[200px] truncate font-medium">
-          {row.original.title}
+        <code className="text-xs bg-muted px-1 rounded">
+          {row.original.variant}
+        </code>
+      ),
+    },
+    {
+      accessorKey: "order",
+      header: "Order",
+    },
+    {
+      accessorKey: "heading",
+      header: "Heading/Title",
+      cell: ({ row }) => (
+        <div className={cn("max-w-[200px] truncate font-medium", !row.original.heading && "text-muted-foreground italic")}>
+          {row.original.heading || "No heading"}
         </div>
       ),
     },
     {
       accessorKey: "isActive",
-      header: "Status",
-      cell: ({ row }) => (
-        <StatusBadge
-          status={row.original.isActive ? "active" : "inactive"}
-          type="user"
-        />
-      ),
+      header: "Active",
+      cell: ({ row }) => {
+        const ad = row.original;
+        const { mutate: updateStatus } = useUpdateAdSlot(ad.id);
+        return (
+          <Switch 
+            checked={ad.isActive} 
+            onCheckedChange={(checked) => updateStatus({ isActive: checked })}
+          />
+        );
+      },
+    },
+    {
+      id: "schedule",
+      header: "Schedule",
+      cell: ({ row }) => {
+        const { startsAt, endsAt } = row.original;
+        if (!startsAt && !endsAt) return <span className="text-muted-foreground text-xs">Always</span>;
+        return (
+          <div className="flex flex-col text-[10px] text-muted-foreground">
+            {startsAt && <span>Starts: {new Date(startsAt).toLocaleDateString()}</span>}
+            {endsAt && <span>Ends: {new Date(endsAt).toLocaleDateString()}</span>}
+          </div>
+        );
+      },
     },
     {
       id: "actions",
@@ -109,7 +192,7 @@ export function AdSlotTable({ onEdit }: AdSlotTableProps) {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will permanently delete the ad slot "{ad.title}".
+                      This will permanently delete this ad slot from "{ad.position}". This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -131,14 +214,72 @@ export function AdSlotTable({ onEdit }: AdSlotTableProps) {
   ], [onEdit, deleteAdSlot]);
 
   return (
-    <DataTable
-      columns={columns}
-      data={data?.data ?? []}
-      loading={isLoading}
-      // Note: AdSlot API uses cursor pagination, but DataTable might expect page/total.
-      // I'll check DataTable implementation or just use what works.
-      // If DataTable is strictly page-based, I might need to adapt.
-      // For now, I'll pass simple pagination.
-    />
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-3">
+        <div className="w-[200px]">
+          <Select value={position} onValueChange={setPosition}>
+            <SelectTrigger>
+              <SelectValue placeholder="Position" />
+            </SelectTrigger>
+            <SelectContent>
+              {AD_POSITIONS.map((pos) => (
+                <SelectItem key={pos.value} value={pos.value}>
+                  {pos.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="w-[150px]">
+          <Select value={type} onValueChange={setType}>
+            <SelectTrigger>
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value={AdSlotType.AD}>AD</SelectItem>
+              <SelectItem value={AdSlotType.BANNER}>BANNER</SelectItem>
+              <SelectItem value={AdSlotType.PROMO_STRIP}>PROMO_STRIP</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="w-[150px]">
+          <Select value={variantFilter} onValueChange={setVariantFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Variant" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Variants</SelectItem>
+              {Object.entries(AdSlotVariant).map(([key, value]) => (
+                <SelectItem key={value} value={value}>
+                  {key.replace(/_/g, " ")}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="w-[150px]">
+          <Select value={isActive} onValueChange={setIsActive}>
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active Only</SelectItem>
+              <SelectItem value="inactive">Inactive Only</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={data?.data ?? []}
+        loading={isLoading}
+      />
+    </div>
   );
 }

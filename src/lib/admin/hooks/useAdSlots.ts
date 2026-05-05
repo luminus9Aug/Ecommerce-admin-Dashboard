@@ -8,6 +8,7 @@ export interface AdSlotFilters {
   cursor?: string;
   limit?: number;
   position?: string;
+  type?: string;
   isActive?: boolean;
 }
 
@@ -33,7 +34,7 @@ export function useCreateAdSlot() {
     mutationFn: (payload: CreateAdSlotPayload) => adSlotAdapter.createAdSlot(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "marketing", "ad-slots"] });
-      toast.success("Ad slot created successfully");
+      toast.success("Ad slot created. Changes will appear on site within a few seconds");
     },
     onError: (error: any) => {
       const message = error.response?.data?.message || "Failed to create ad slot";
@@ -49,7 +50,7 @@ export function useUpdateAdSlot(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "marketing", "ad-slots"] });
       queryClient.invalidateQueries({ queryKey: adminQueryKeys.adSlot(id) });
-      toast.success("Ad slot updated successfully");
+      toast.success("Ad slot updated. Changes will appear on site within a few seconds");
     },
     onError: (error: any) => {
       const message = error.response?.data?.message || "Failed to update ad slot";
@@ -64,7 +65,7 @@ export function useDeleteAdSlot() {
     mutationFn: (id: string) => adSlotAdapter.deleteAdSlot(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "marketing", "ad-slots"] });
-      toast.success("Ad slot deleted successfully");
+      toast.success("Ad slot deleted. Changes will appear on site within a few seconds");
     },
     onError: (error: any) => {
       const message = error.response?.data?.message || "Failed to delete ad slot";
