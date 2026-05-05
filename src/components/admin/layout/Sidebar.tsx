@@ -18,6 +18,7 @@ import {
   Mail,
   MessageSquare,
   Settings,
+  Layout,
   LogOut,
 } from "lucide-react";
 import { NavItem } from "./NavItem";
@@ -133,14 +134,14 @@ export function Sidebar() {
           collapsed={collapsed}
         />
 
-        <NavItem
+        {/* <NavItem
           href="/admin/b2b/quotes"
           icon={FileText}
           label="Quotes"
           badge={badges?.pendingQuotes}
           badgeColor="red"
           collapsed={collapsed}
-        />
+        /> */}
         {/* <NavItem
             href="/admin/b2b/credit-terms"
             icon={Banknote}
@@ -154,12 +155,12 @@ export function Sidebar() {
           collapsed={collapsed}
         />
 
-        <NavItem
+        {/* <NavItem
           href="/admin/content/banners"
           icon={Image}
           label="Banners"
           collapsed={collapsed}
-        />
+        /> */}
         <NavItem
           href="/admin/content/blog"
           icon={BookOpen}
@@ -172,12 +173,12 @@ export function Sidebar() {
           label="FAQ"
           collapsed={collapsed}
         />
-        {/* <NavItem
-            href="/admin/content/themes"
-            icon={Palette}
-            label="Themes"
-            collapsed={collapsed}
-          /> */}
+        <NavItem
+          href="/admin/ad-slots"
+          icon={Layout}
+          label="Ad Slots"
+          collapsed={collapsed}
+        />
 
         <NavItem
           href="/admin/marketing/coupons"
@@ -189,12 +190,6 @@ export function Sidebar() {
           href="/admin/marketing/newsletter"
           icon={Mail}
           label="Newsletter"
-          collapsed={collapsed}
-        />
-        <NavItem
-          href="/admin/ad-slots"
-          icon={Image}
-          label="Ad Slots"
           collapsed={collapsed}
         />
         <NavItem

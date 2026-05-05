@@ -3,7 +3,7 @@ import { API_ENDPOINTS } from "../endpoints";
 import type { CursorPaginatedResponse, AdSlot, CreateAdSlotPayload } from "@/types/admin";
 
 class AdSlotAdapter extends BaseAdapter {
-  public async getAdSlots(params?: { cursor?: string; limit?: number; position?: string; isActive?: boolean }): Promise<CursorPaginatedResponse<AdSlot>> {
+  public async getAdSlots(params?: { cursor?: string; limit?: number; position?: string; type?: string; isActive?: boolean }): Promise<CursorPaginatedResponse<AdSlot>> {
     return this.get<CursorPaginatedResponse<AdSlot>>(API_ENDPOINTS.AD_SLOTS.ADMIN_ALL, { params });
   }
 

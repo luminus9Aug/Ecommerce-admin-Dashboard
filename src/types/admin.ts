@@ -462,22 +462,68 @@ export interface Tenant {
 }
 
 // ─── Ad Slots ───────────────────────────────────────────
+export enum AdSlotType {
+  AD = "AD",
+  BANNER = "BANNER",
+  PROMO_STRIP = "PROMO_STRIP",
+}
+
+export enum AdSlotVariant {
+  DEFAULT = "default",
+  SIDEBAR = "sidebar",
+  BANNER = "banner",
+  ROW = "row",
+  VERTICAL = "vertical",
+  SIDEBAR_CARD = "sidebarCard",
+  TWO_COLUMN = "twoColumn",
+}
+
 export interface AdSlot {
   id: string;
   position: string;
-  slot: number;
+  type: AdSlotType;
+  variant: AdSlotVariant;
+  order: number;
   imageUrl: string;
-  title: string;
-  subtitle?: string;
+  mobileImageUrl?: string;
+  altText?: string;
+  heading?: string;
+  subheading?: string;
+  description?: string;
+  offerEndsLabel?: string;
+  offerEndsValue?: string;
+  bgColor?: string;
+  textColor?: string;
   ctaText: string;
   ctaLink: string;
-  bgColor: string;
   isActive: boolean;
+  startsAt?: string;
+  endsAt?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export type CreateAdSlotPayload = Omit<AdSlot, "id" | "createdAt" | "updatedAt">;
+export interface CreateAdSlotPayload {
+  position: string;
+  type: AdSlotType;
+  variant: AdSlotVariant;
+  order: number;
+  imageUrl: string;
+  mobileImageUrl?: string;
+  altText?: string;
+  heading?: string;
+  subheading?: string;
+  description?: string;
+  offerEndsLabel?: string;
+  offerEndsValue?: string;
+  bgColor?: string;
+  textColor?: string;
+  ctaText: string;
+  ctaLink: string;
+  isActive: boolean;
+  startsAt?: string;
+  endsAt?: string;
+}
 
 // ─── Notification Badges ──────────────────────────────────
 export interface NotificationBadges {
