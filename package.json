@@ -4,11 +4,12 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "vite preview --port 8080",
     "dev": "vite dev --mode development",
     "dev:prod": "vite dev --mode production",
-    "build": "vite build --mode production",
     "build:dev": "vite build --mode development",
-    "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
