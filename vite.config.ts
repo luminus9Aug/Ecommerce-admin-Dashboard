@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
-    plugins: [react()],
+    plugins: [react(), tsconfigPaths()],
     preview: {
         host: true,
-        allowedHosts: ['ecommerce-admin-dashboard-i586.onrender.com']
+        allowedHosts: ['*']
     }
 })
