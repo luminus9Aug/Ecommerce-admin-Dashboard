@@ -1,3 +1,10 @@
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-export default defineConfig();
+export default defineConfig({
+    plugins: [react()],
+    preview: {
+        host: true,
+        allowedHosts: ['ecommerce-admin-dashboard-i586.onrender.com']
+    }
+})
