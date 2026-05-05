@@ -5,6 +5,8 @@ export const adminQueryKeys = {
     ["admin", "stats", "revenue", startDate, endDate] as const,
   topProducts: ["admin", "stats", "top-products"] as const,
   topCustomers: ["admin", "stats", "top-customers"] as const,
+  dashboardData: (startDate: string, endDate: string) =>
+    ["admin", "stats", "dashboard", startDate, endDate] as const,
 
   // Products
   products: (filters: object) => ["admin", "products", filters] as const,
@@ -43,6 +45,8 @@ export const adminQueryKeys = {
   // Marketing
   coupons: ["admin", "marketing", "coupons"] as const,
   newsletterSubscribers: ["admin", "marketing", "newsletter"] as const,
+  adSlots: (filters: object) => ["admin", "marketing", "ad-slots", filters] as const,
+  adSlot: (id: string) => ["admin", "marketing", "ad-slots", id] as const,
 
   // Support
   tickets: (filters: object) =>

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import {
   AreaChart,
   Area,
@@ -20,7 +20,7 @@ import {
   XCircle,
   IndianRupeeIcon,
 } from "lucide-react";
-import { format, subDays } from "date-fns";
+import { format } from "date-fns";
 import { PageHeader } from "@/components/admin/shared/PageHeader";
 import { StatCard } from "@/components/admin/shared/StatCard";
 import { StatusBadge } from "@/components/admin/shared/StatusBadge";
@@ -28,13 +28,8 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
-  useOverviewStats,
-  useRevenueStats,
-  useTopProducts,
-  useTopCustomers,
-  useHealth,
+  useDashboardData,
 } from "@/lib/admin/hooks/useDashboardStats";
-import { useOrders } from "@/lib/admin/hooks/useOrders";
 import { useNotificationBadges } from "@/lib/admin/hooks/useNotificationBadges";
 import { formatCurrency } from "@/lib/admin/api-client";
 
@@ -42,24 +37,50 @@ export const Route = createFileRoute("/admin/")({
   component: DashboardPage,
 });
 
+/** Returns YYYY-MM-DD in the **local** timezone — avoids UTC midnight offset cutting off today's data. */
+function toLocalDateStr(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 function DashboardPage() {
-  const { startDate, endDate } = useMemo(() => {
-    const end = new Date();
-    const start = subDays(end, 30);
-    return { startDate: start.toISOString(), endDate: end.toISOString() };
+  // Recompute dates every minute so the chart never goes stale after midnight
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(id);
   }, []);
 
-  const stats = useOverviewStats();
-  const revenue = useRevenueStats(startDate, endDate);
-  const topProducts = useTopProducts();
-  const topCustomers = useTopCustomers();
-  const recentOrders = useOrders({ page: 1, limit: 10 });
+  const { startDate, endDate } = useMemo(() => {
+    const year = now.getFullYear();
+    const month = now.getMonth(); // 0-indexed
+    // First day of current month
+    const start = new Date(year, month, 1);
+    // Last day of current month (day 0 of next month = last day of this month)
+    const end = new Date(year, month + 1, 0);
+    return {
+      startDate: toLocalDateStr(start),
+      endDate: toLocalDateStr(end),
+    };
+  }, [now]);
+
+  const dashboardQuery = useDashboardData(startDate, endDate);
   const badges = useNotificationBadges();
-  const health = useHealth();
 
-  const o = stats.data;
-  console.log('Data ==>', o);
+  const d = dashboardQuery.data;
+  const o = d?.overview;
 
+  const revenueData = useMemo(() => {
+    if (!d?.revenue?.dailyRevenue) return [];
+    return Object.entries(d.revenue.dailyRevenue).map(([date, stats]) => ({
+      date,
+      ...(stats as any)
+    }));
+  }, [d?.revenue?.dailyRevenue]);
+
+  console.log(' O =>>', o?.totalRevenue, '=revenueData=>', revenueData);
 
   return (
     <div className="space-y-6">
@@ -69,20 +90,28 @@ function DashboardPage() {
         <StatCard
           title="Total Revenue"
           value={o?.totalRevenue?.toLocaleString() ?? ""}
-          subtext={o && o.revenueChange > 0 ? `+${o.revenueChange.toFixed(2)}% vs last month` : 'No revenue this month'}
+          subtext={
+            !o ? '' : o.revenueThisMonth === 0
+              ? 'No revenue this month'
+              : `${o.revenueChange > 0 ? '+' : ''}${o.revenueChange.toFixed(2)}% vs last month`
+          }
           trend={o?.revenueChange}
           icon={IndianRupeeIcon}
           iconBgClass="bg-green-100 text-green-700"
-          loading={stats.isLoading}
+          loading={dashboardQuery.isLoading}
         />
         <StatCard
           title="Total Orders"
           value={o?.totalOrders?.toLocaleString() ?? ""}
-          subtext={o && o.ordersChange > 0 ? `${o.ordersChange.toFixed(2)}% vs last month` : 'No orders this month'}
+          subtext={
+            !o ? '' : o.ordersThisMonth === 0
+              ? 'No orders this month'
+              : `${o.ordersChange > 0 ? '+' : ''}${o.ordersChange.toFixed(2)}% vs last month`
+          }
           trend={o?.ordersChange}
           icon={ShoppingCart}
           iconBgClass="bg-blue-100 text-blue-700"
-          loading={stats.isLoading}
+          loading={dashboardQuery.isLoading}
         />
         <StatCard
           title="Total Users"
@@ -90,16 +119,16 @@ function DashboardPage() {
           subtext={o && o.newUsersThisMonth > 0 ? `+${o.newUsersThisMonth} this month` : 'No new users this month'}
           icon={Users}
           iconBgClass="bg-purple-100 text-purple-700"
-          loading={stats.isLoading}
+          loading={dashboardQuery.isLoading}
         />
-        <Link to="/admin/users" className="block">
+        <Link to="/admin/b2b/companies" className="block">
           <StatCard
-            title="Pending B2B Approvals"
+            title="Pending Company Approvals"
             value={o?.pendingB2BApprovals ?? "—"}
             subtext="Require your review"
             icon={Clock}
             iconBgClass="bg-orange-100 text-orange-700"
-            loading={stats.isLoading}
+            loading={dashboardQuery.isLoading}
           />
         </Link>
       </div>
@@ -107,25 +136,25 @@ function DashboardPage() {
       <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-800">Revenue Overview</h2>
-          <Badge variant="secondary">Last 30 days</Badge>
+          <Badge variant="secondary">{format(now, 'MMMM yyyy')}</Badge>
         </div>
         <div className="h-[350px]">
-          {revenue.isLoading ? (
+          {dashboardQuery.isLoading ? (
             <Skeleton className="h-full w-full" />
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenue.data ?? []}>
+              <AreaChart data={revenueData}>
                 <defs>
                   <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#2563eb" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="#2563eb" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#eb2525ff" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#28eb25ff" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis
                   dataKey="date"
                   tickFormatter={(v) => format(new Date(v), "MMM dd")}
-                  fontSize={12}
+                  fontSize={8}
                 />
                 <YAxis yAxisId="left" fontSize={12} />
                 <YAxis yAxisId="right" orientation="right" fontSize={12} />
@@ -160,7 +189,7 @@ function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         <Card className="p-6 lg:col-span-3">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">Top Products</h2>
-          {topProducts.isLoading ? (
+          {dashboardQuery.isLoading ? (
             <Skeleton className="h-40" />
           ) : (
             <table className="w-full text-sm">
@@ -173,7 +202,7 @@ function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {(topProducts.data ?? []).slice(0, 5).map((p, i) => (
+                {(d?.topProducts ?? []).slice(0, 5).map((p, i) => (
                   <tr key={p.id} className="border-t border-slate-100">
                     <td className="py-3 text-slate-500">{i + 1}</td>
                     <td>
@@ -192,7 +221,7 @@ function DashboardPage() {
                     <td className="text-right font-medium">{formatCurrency(p.revenue)}</td>
                   </tr>
                 ))}
-                {(topProducts.data ?? []).length === 0 && (
+                {(d?.topProducts ?? []).length === 0 && (
                   <tr><td colSpan={4} className="py-8 text-center text-slate-400">No data</td></tr>
                 )}
               </tbody>
@@ -202,11 +231,11 @@ function DashboardPage() {
 
         <Card className="p-6 lg:col-span-2">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">Top Customers</h2>
-          {topCustomers.isLoading ? (
+          {dashboardQuery.isLoading ? (
             <Skeleton className="h-40" />
           ) : (
             <ul className="space-y-3">
-              {(topCustomers.data ?? []).slice(0, 5).map((c, i) => (
+              {(d?.topCustomers ?? []).slice(0, 5).map((c, i) => (
                 <li key={c.id}>
                   <Link
                     to="/admin/users/$id"
@@ -227,7 +256,7 @@ function DashboardPage() {
                   </Link>
                 </li>
               ))}
-              {(topCustomers.data ?? []).length === 0 && (
+              {(d?.topCustomers ?? []).length === 0 && (
                 <li className="py-4 text-center text-sm text-slate-400">No data</li>
               )}
             </ul>
@@ -239,11 +268,11 @@ function DashboardPage() {
         <Card className="p-6 lg:col-span-3">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-800">Recent Orders</h2>
-            <Link to="/admin/orders" className="text-sm text-blue-600 hover:underline">
+            <Link to="/admin/orders" search={{ dateRange: "this_month" } as any} className="text-sm text-blue-600 hover:underline">
               View all
             </Link>
           </div>
-          {recentOrders.isLoading ? (
+          {dashboardQuery.isLoading ? (
             <Skeleton className="h-40" />
           ) : (
             <table className="w-full text-sm">
@@ -256,7 +285,7 @@ function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {(recentOrders.data?.data ?? []).map((o) => (
+                {(d?.recentOrders?.data ?? []).map((o) => (
                   <tr key={o.id} className="border-t border-slate-100">
                     <td className="py-3">
                       <Link
@@ -274,7 +303,7 @@ function DashboardPage() {
                     <td><StatusBadge status={o.status} type="order" /></td>
                   </tr>
                 ))}
-                {(recentOrders.data?.data ?? []).length === 0 && (
+                {(d?.recentOrders?.data ?? []).length === 0 && (
                   <tr><td colSpan={4} className="py-8 text-center text-slate-400">No orders</td></tr>
                 )}
               </tbody>
@@ -285,28 +314,12 @@ function DashboardPage() {
         <Card className="p-6 lg:col-span-2">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">Requires Attention</h2>
           <div className="space-y-2">
-            <ActionRow href="/admin/users" label="B2B Approvals pending" count={badges.data?.pendingB2BApprovals ?? 0} color="bg-red-100 text-red-700" />
+            <ActionRow href="/admin/b2b/companies" label="B2B Approvals pending" count={badges.data?.pendingB2BApprovals ?? 0} color="bg-red-100 text-red-700" />
             <ActionRow href="/admin/b2b/quotes" label="Quote requests pending" count={badges.data?.pendingQuotes ?? 0} color="bg-orange-100 text-orange-700" />
             <ActionRow href="/admin/support" label="Open support tickets" count={badges.data?.openTickets ?? 0} color="bg-blue-100 text-blue-700" />
             <ActionRow href="/admin/b2b/credit-terms" label="Credit term applications" count={badges.data?.pendingCreditTerms ?? 0} color="bg-yellow-100 text-yellow-700" />
           </div>
         </Card>
-      </div>
-
-      <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs text-slate-600">
-        {health.data ? (
-          <>
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-            <span>API Operational</span>
-          </>
-        ) : health.isError ? (
-          <>
-            <XCircle className="h-4 w-4 text-red-600" />
-            <span>API Degraded</span>
-          </>
-        ) : (
-          <span>Checking…</span>
-        )}
       </div>
     </div>
   );

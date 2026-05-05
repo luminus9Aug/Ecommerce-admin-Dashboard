@@ -8,9 +8,6 @@ interface Props {
   description?: string;
 }
 
-// Reusable placeholder used by routes that aren't fully implemented yet.
-// Each placeholder has its own file so deep-links work and sidebar/topbar
-// navigation never 404s.
 export function AdminPlaceholder({ title, description }: Props) {
   return (
     <div>

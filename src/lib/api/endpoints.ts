@@ -13,8 +13,16 @@ export const API_ENDPOINTS = {
     BASE: "/products",
     BY_ID: (id: string) => `/products/id/${id}`,
     UPDATE: (id: string) => `/products/${id}`,
-    BULK_UPDATE: "/admin/stats/products/bulk-update",
-    BULK_DELETE: "/admin/stats/products/bulk-delete",
+    DELETE: (id: string) => `/products/${id}`,
+    BULK_UPDATE: "/products/bulk-update",
+    BULK_DELETE: "/products/bulk-delete",
+  },
+  CATEGORIES: {
+    BASE: "/categories",
+    BY_ID: (id: string) => `/categories/${id}`,
+  },
+  UPLOADS: {
+    SINGLE: "/uploads",
   },
   ORDERS: {
     BASE: "/orders",
@@ -34,6 +42,18 @@ export const API_ENDPOINTS = {
   B2B: {
     QUOTES_ALL: "/b2b/quotes/all",
     CREDIT_TERMS: "/b2b/credit-terms",
+  },
+  BLOGS: {
+    BASE: "/blog/posts",
+    ADMIN_ALL: "/blog/posts/admin/all",
+    CATEGORIES: "/blog/posts/categories",
+    BY_ID: (id: string) => `/blog/posts/id/${id}`,
+    BY_SLUG: (slug: string) => `/blog/posts/${slug}`,
+  },
+  AD_SLOTS: {
+    BASE: "/ad-slots",
+    ADMIN_ALL: "/ad-slots/admin/all",
+    BY_ID: (id: string) => `/ad-slots/${id}`,
   },
   HEALTH: "/health",
 };

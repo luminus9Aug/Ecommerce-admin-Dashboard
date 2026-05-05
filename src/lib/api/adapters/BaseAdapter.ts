@@ -17,8 +17,17 @@ export class BaseAdapter {
       }
     }
 
-    // Normalize backend pagination { items, meta } -> frontend { data, total, page, limit, totalPages }
+    // Normalize backend pagination { items, meta } -> frontend format
     if (inner && typeof inner === 'object' && 'items' in inner) {
+      // Handle Cursor Pagination
+      if (inner.meta && 'nextCursor' in inner.meta) {
+        return {
+          data: inner.items,
+          meta: inner.meta,
+        } as unknown as T;
+      }
+
+      // Handle Offset Pagination
       return {
         data: inner.items,
         total: inner.meta?.total ?? 0,

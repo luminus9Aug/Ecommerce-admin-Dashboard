@@ -1,20 +1,14 @@
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import adminApiClient from "../api-client";
-import { adminQueryKeys } from "../query-keys";
+import { categoryAdapter, type CreateCategoryPayload } from "@/lib/api/adapters/CategoryAdapter";
 import type { Category } from "@/types/admin";
+
+const QUERY_KEY = ["admin", "categories"] as const;
 
 export function useCategories() {
   return useQuery<Category[]>({
-    queryKey: adminQueryKeys.categories,
-    queryFn: async () => {
-      const { data } = await adminApiClient.get<any>("/categories");
-      return Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
-    },
+    queryKey: QUERY_KEY,
+    queryFn: () => categoryAdapter.getCategories(),
     staleTime: 60_000,
   });
 }
@@ -22,16 +16,14 @@ export function useCategories() {
 export function useCreateCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<Category>) => {
-      const { data } = await adminApiClient.post<Category>(
-        "/categories",
-        payload,
-      );
-      return data;
-    },
+    mutationFn: (payload: CreateCategoryPayload) =>
+      categoryAdapter.createCategory(payload),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: adminQueryKeys.categories });
-      toast.success("Category created");
+      qc.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success("Category created successfully");
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message ?? "Failed to create category");
     },
   });
 }
@@ -39,16 +31,14 @@ export function useCreateCategory() {
 export function useUpdateCategory(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<Category>) => {
-      const { data } = await adminApiClient.patch<Category>(
-        `/categories/${id}`,
-        payload,
-      );
-      return data;
-    },
+    mutationFn: (payload: Partial<CreateCategoryPayload>) =>
+      categoryAdapter.updateCategory(id, payload),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: adminQueryKeys.categories });
-      toast.success("Category updated");
+      qc.invalidateQueries({ queryKey: QUERY_KEY });
+      toast.success("Category updated successfully");
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message ?? "Failed to update category");
     },
   });
 }
@@ -56,12 +46,13 @@ export function useUpdateCategory(id: string) {
 export function useDeleteCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
-      await adminApiClient.delete(`/categories/${id}`);
-    },
+    mutationFn: (id: string) => categoryAdapter.deleteCategory(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: adminQueryKeys.categories });
+      qc.invalidateQueries({ queryKey: QUERY_KEY });
       toast.success("Category deleted");
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message ?? "Failed to delete category");
     },
   });
 }

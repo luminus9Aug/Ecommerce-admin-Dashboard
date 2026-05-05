@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Bell,
+  CheckCircle2,
   ChevronDown,
   KeyRound,
   LogOut,
   Menu,
   MessageSquare,
   Search,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,6 +41,7 @@ import { useSidebarStore } from "@/lib/admin/sidebar-store";
 import { useAdminProfile, useLogout } from "@/lib/admin/hooks/useAdminAuth";
 import { useNotificationBadges } from "@/lib/admin/hooks/useNotificationBadges";
 import adminApiClient from "@/lib/admin/api-client";
+import { useHealth } from "@/lib/admin/hooks/useDashboardStats";
 
 interface SearchResult {
   id: string;
@@ -130,6 +135,8 @@ export function TopBar() {
     ? `${profile.firstName?.[0] ?? ""}${profile.lastName?.[0] ?? ""}`
     : "A";
 
+  const health = useHealth();
+
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-slate-200 bg-white px-4">
       <Button
@@ -151,7 +158,6 @@ export function TopBar() {
           ⌘K
         </kbd>
       </button>
-
       <div className="ml-auto flex items-center gap-2">
         {/* Notifications */}
         <Popover>
@@ -177,7 +183,7 @@ export function TopBar() {
               </p>
               <Link
                 to="/admin/users"
-                search={{ role: "b2b", isApproved: "false" }}
+                search={{ role: "b2b", isApproved: "false" } as any}
                 className="flex items-center justify-between rounded px-2 py-2 text-sm hover:bg-slate-50"
               >
                 <span>{badges?.pendingB2BApprovals ?? 0} B2B approvals pending</span>
@@ -187,7 +193,7 @@ export function TopBar() {
               </Link>
               <Link
                 to="/admin/b2b/quotes"
-                search={{ status: "pending" }}
+                search={{ status: "pending" } as any}
                 className="flex items-center justify-between rounded px-2 py-2 text-sm hover:bg-slate-50"
               >
                 <span>{badges?.pendingQuotes ?? 0} quote requests pending</span>
@@ -200,7 +206,7 @@ export function TopBar() {
               </Link>
               <Link
                 to="/admin/support"
-                search={{ status: "open" }}
+                search={{ status: "open" } as any}
                 className="flex items-center justify-between rounded px-2 py-2 text-sm hover:bg-slate-50"
               >
                 <span>{badges?.openTickets ?? 0} support tickets open</span>
@@ -230,11 +236,23 @@ export function TopBar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 rounded-full px-1 py-1 hover:bg-slate-100">
-              <Avatar className="h-7 w-7">
-                <AvatarFallback className="bg-slate-700 text-xs text-white">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <Avatar className="h-7 w-7">
+                  <AvatarFallback className="bg-slate-700 text-xs text-white">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <span
+                  className={cn(
+                    "absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white",
+                    health.data
+                      ? "bg-green-500"
+                      : health.isError
+                        ? "bg-red-500"
+                        : "bg-slate-300",
+                  )}
+                />
+              </div>
               <ChevronDown className="hidden h-3 w-3 text-slate-400 md:block" />
             </button>
           </DropdownMenuTrigger>

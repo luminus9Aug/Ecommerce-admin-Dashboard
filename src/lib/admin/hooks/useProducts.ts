@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { adminQueryKeys } from "../query-keys";
-import type { PaginatedResponse, Product } from "@/types/admin";
+import type { PaginatedResponse, Product, CreateProductPayload } from "@/types/admin";
 import { productAdapter } from "../../api/adapters/ProductAdapter";
 
 export interface ProductFilters {
@@ -37,7 +37,7 @@ export function useProduct(id: string | undefined) {
 export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: Partial<Product>) => productAdapter.createProduct(payload),
+    mutationFn: (payload: CreateProductPayload) => productAdapter.createProduct(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
       toast.success("Product created successfully");

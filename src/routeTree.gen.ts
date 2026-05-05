@@ -17,6 +17,7 @@ import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
+import { Route as AdminAdSlotsRouteImport } from './routes/admin.ad-slots'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin.users.index'
 import { Route as AdminSupportIndexRouteImport } from './routes/admin.support.index'
 import { Route as AdminProductsIndexRouteImport } from './routes/admin.products.index'
@@ -78,6 +79,11 @@ const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
 const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdSlotsRoute = AdminAdSlotsRouteImport.update({
+  id: '/ad-slots',
+  path: '/ad-slots',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
@@ -195,6 +201,7 @@ const AdminContentBlogIdEditRoute = AdminContentBlogIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/admin/ad-slots': typeof AdminAdSlotsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -226,6 +233,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/ad-slots': typeof AdminAdSlotsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/admin/ad-slots': typeof AdminAdSlotsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -293,6 +302,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/admin/ad-slots'
     | '/admin/analytics'
     | '/admin/categories'
     | '/admin/login'
@@ -324,6 +334,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin/ad-slots'
     | '/admin/analytics'
     | '/admin/categories'
     | '/admin/login'
@@ -356,6 +367,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/admin/ad-slots'
     | '/admin/analytics'
     | '/admin/categories'
     | '/admin/login'
@@ -448,6 +460,13 @@ declare module '@tanstack/react-router' {
       path: '/analytics'
       fullPath: '/admin/analytics'
       preLoaderRoute: typeof AdminAnalyticsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/ad-slots': {
+      id: '/admin/ad-slots'
+      path: '/ad-slots'
+      fullPath: '/admin/ad-slots'
+      preLoaderRoute: typeof AdminAdSlotsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/users/': {
@@ -608,6 +627,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAdSlotsRoute: typeof AdminAdSlotsRoute
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -638,6 +658,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdSlotsRoute: AdminAdSlotsRoute,
   AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminLoginRoute: AdminLoginRoute,

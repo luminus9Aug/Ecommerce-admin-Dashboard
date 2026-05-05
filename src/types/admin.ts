@@ -10,8 +10,10 @@ export interface AdminUser {
 // ─── Stats ───────────────────────────────────────────────
 export interface OverviewStats {
   totalRevenue: number;
+  revenueThisMonth: number;
   revenueChange: number;
   totalOrders: number;
+  ordersThisMonth: number;
   ordersChange: number;
   totalUsers: number;
   newUsersThisMonth: number;
@@ -52,18 +54,31 @@ export interface Category {
   parentId?: string;
 }
 
+export interface ProductImage {
+  id: string;
+  imageUrl: string;
+  thumbnailUrl?: string | null;
+  altText?: string | null;
+  isPrimary: boolean;
+  sortOrder: number;
+}
+
 export interface ProductVariant {
   id: string;
   name: string;
   sku: string;
-  price: number;
+  mrp: number;
+  sellingPrice: number;
+  b2bPrice?: number;
   stockQuantity: number;
   attributes: Record<string, string>;
+  isActive: boolean;
 }
 
 export interface Product {
   id: string;
   name: string;
+  brand?: string;
   slug: string;
   description: string;
   mrp: number;
@@ -74,14 +89,69 @@ export interface Product {
   sku: string;
   isFeatured: boolean;
   isActive: boolean;
-  images: string[];
+  hasVariants: boolean;
+  images: ProductImage[];
   category?: Category;
   categoryId?: string;
   variants: ProductVariant[];
+  specifications?: Record<string, any>;
+  // SEO
   metaTitle?: string;
   metaDescription?: string;
+  canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  searchKeywords?: string[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CreateProductImagePayload {
+  imageUrl: string;
+  altText?: string;
+  isPrimary?: boolean;
+  sortOrder?: number;
+}
+
+export interface CreateProductVariantPayload {
+  name?: string;
+  skuSuffix?: string;
+  attributes?: Record<string, string>;
+  mrp: number;
+  sellingPrice: number;
+  b2bPrice?: number;
+  wholesalePrice?: number;
+  stockQuantity?: number;
+  isActive?: boolean;
+}
+
+export interface CreateProductPayload {
+  name: string;
+  brand?: string;
+  slug?: string;
+  description?: string;
+  categoryId?: string;
+  mrp?: number;
+  sellingPrice?: number;
+  b2bPrice?: number;
+  wholesalePrice?: number;
+  stockQuantity?: number;
+  lowStockThreshold?: number;
+  sku?: string;
+  specifications?: Record<string, any>;
+  isFeatured?: boolean;
+  isActive?: boolean;
+  images?: CreateProductImagePayload[];
+  variants?: CreateProductVariantPayload[];
+  // SEO
+  metaTitle?: string;
+  metaDescription?: string;
+  canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  searchKeywords?: string[];
 }
 
 export interface PaginatedResponse<T> {
@@ -90,6 +160,15 @@ export interface PaginatedResponse<T> {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export interface CursorPaginatedResponse<T> {
+  data: T[];
+  meta: {
+    nextCursor: string | null;
+    hasNextPage: boolean;
+    count: number;
+  };
 }
 
 // ─── Order ───────────────────────────────────────────────
@@ -258,15 +337,38 @@ export interface BlogPost {
   title: string;
   slug: string;
   content: string;
-  excerpt?: string;
-  coverImageUrl?: string;
-  status: "draft" | "published";
-  publishedAt?: string;
-  category?: BlogCategory;
-  categoryId?: string;
+  thumbnail?: string;
+  isPublished: boolean;
   metaTitle?: string;
   metaDescription?: string;
+  ogImage?: string;
+  canonicalUrl?: string;
+  keywords?: string[];
+  publishedAt?: string;
+  readTime?: number;
+  excerpt?: string;
+  author: User;
+  category?: BlogCategory;
+  categoryId?: string;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateBlogPostPayload {
+  title: string;
+  slug?: string;
+  content: string;
+  thumbnail?: string;
+  isPublished?: boolean;
+  metaTitle?: string;
+  metaDescription?: string;
+  ogImage?: string;
+  canonicalUrl?: string;
+  keywords?: string[];
+  publishedAt?: string;
+  readTime?: number;
+  excerpt?: string;
+  categoryId?: string;
 }
 
 export interface FAQ {
@@ -358,6 +460,24 @@ export interface Tenant {
   subdomain: string;
   createdAt: string;
 }
+
+// ─── Ad Slots ───────────────────────────────────────────
+export interface AdSlot {
+  id: string;
+  position: string;
+  slot: number;
+  imageUrl: string;
+  title: string;
+  subtitle?: string;
+  ctaText: string;
+  ctaLink: string;
+  bgColor: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CreateAdSlotPayload = Omit<AdSlot, "id" | "createdAt" | "updatedAt">;
 
 // ─── Notification Badges ──────────────────────────────────
 export interface NotificationBadges {
