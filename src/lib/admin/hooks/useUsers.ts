@@ -82,3 +82,37 @@ export const useApproveUser = userActionMutation("approve", "User approved");
 export const useRejectUser = userActionMutation("reject", "User rejected");
 export const useSuspendUser = userActionMutation("suspend", "User suspended");
 export const useActivateUser = userActionMutation("activate", "User activated");
+
+export function useApproveB2BUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => userAdapter.approveB2B(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+      qc.invalidateQueries({ queryKey: ["admin", "stats", "overview"] });
+      toast.success("B2B user approved");
+    },
+  });
+}
+
+export function useRejectB2BUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) => userAdapter.rejectB2B(id, reason),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+      qc.invalidateQueries({ queryKey: ["admin", "stats", "overview"] });
+      toast.success("B2B user rejected");
+    },
+  });
+}
+
+export function useRequestInfoB2BUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, message }: { id: string; message: string }) => userAdapter.requestInfoB2B(id, message),
+    onSuccess: () => {
+      toast.success("Information requested");
+    },
+  });
+}

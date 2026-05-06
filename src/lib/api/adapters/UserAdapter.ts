@@ -38,6 +38,18 @@ class UserAdapter extends BaseAdapter {
   public async performAction(id: string, action: string): Promise<any> {
     return this.patch<any>(`/users/${id}/${action}`);
   }
+
+  public async approveB2B(id: string): Promise<any> {
+    return this.post<any>(`${API_ENDPOINTS.USERS.BASE}/${id}/approve-b2b`);
+  }
+
+  public async rejectB2B(id: string, reason?: string): Promise<any> {
+    return this.post<any>(`${API_ENDPOINTS.USERS.BASE}/${id}/reject-b2b`, { reason });
+  }
+
+  public async requestInfoB2B(id: string, message: string): Promise<any> {
+    return this.post<any>(`${API_ENDPOINTS.USERS.BASE}/${id}/request-info-b2b`, { message });
+  }
 }
 
 export const userAdapter = new UserAdapter();
