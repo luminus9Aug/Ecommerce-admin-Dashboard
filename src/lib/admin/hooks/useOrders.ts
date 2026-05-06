@@ -4,8 +4,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
-import adminApiClient from "../api-client";
 import { adminQueryKeys } from "../query-keys";
+import { orderAdapter } from "../../api/adapters/OrderAdapter";
 import type {
   Order,
   OrderStatus,
@@ -18,6 +18,7 @@ export interface OrderFilters {
   limit?: number;
   search?: string;
   status?: OrderStatus | "";
+  paymentStatus?: string;
   paymentMethod?: PaymentMethod | "";
   startDate?: string;
   endDate?: string;
@@ -26,13 +27,7 @@ export interface OrderFilters {
 export function useOrders(filters: OrderFilters) {
   return useQuery<PaginatedResponse<Order>>({
     queryKey: adminQueryKeys.orders(filters),
-    queryFn: async () => {
-      const { data } = await adminApiClient.get<PaginatedResponse<Order>>(
-        "/orders/all",
-        { params: filters },
-      );
-      return data;
-    },
+    queryFn: () => orderAdapter.getOrders(filters),
     staleTime: 30_000,
   });
 }
@@ -40,10 +35,7 @@ export function useOrders(filters: OrderFilters) {
 export function useOrder(id: string | undefined) {
   return useQuery<Order>({
     queryKey: adminQueryKeys.order(id ?? ""),
-    queryFn: async () => {
-      const { data } = await adminApiClient.get<Order>(`/orders/${id}`);
-      return data;
-    },
+    queryFn: () => orderAdapter.getOrderById(id!),
     enabled: Boolean(id),
   });
 }
@@ -51,12 +43,7 @@ export function useOrder(id: string | undefined) {
 export function useUpdateOrderStatus(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (status: OrderStatus) => {
-      const { data } = await adminApiClient.patch(`/orders/${id}/status`, {
-        status,
-      });
-      return data;
-    },
+    mutationFn: (status: OrderStatus) => orderAdapter.updateStatus(id, status),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "orders"] });
       toast.success("Order status updated");
@@ -67,12 +54,7 @@ export function useUpdateOrderStatus(id: string) {
 export function useCancelOrder(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (reason: string) => {
-      const { data } = await adminApiClient.post(`/orders/${id}/cancel`, {
-        reason,
-      });
-      return data;
-    },
+    mutationFn: (reason: string) => orderAdapter.cancelOrder(id, reason),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "orders"] });
       toast.success("Order cancelled");
@@ -83,12 +65,7 @@ export function useCancelOrder(id: string) {
 export function useReturnOrder(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (reason: string) => {
-      const { data } = await adminApiClient.post(`/orders/${id}/return`, {
-        reason,
-      });
-      return data;
-    },
+    mutationFn: (reason: string) => orderAdapter.returnOrder(id, reason),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "orders"] });
       toast.success("Return processed");

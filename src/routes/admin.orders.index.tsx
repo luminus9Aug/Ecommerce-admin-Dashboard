@@ -6,6 +6,11 @@ import { Eye, Search, Filter } from "lucide-react";
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
 
+const formatSafeDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString();
+};
+
 export const Route = createFileRoute("/admin/orders/")({
   component: OrdersPage,
 });
@@ -13,9 +18,10 @@ export const Route = createFileRoute("/admin/orders/")({
 function OrdersPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<string>("");
+  const [paymentStatus, setPaymentStatus] = useState<string>("");
   const [search, setSearch] = useState("");
 
-  const { data, isLoading } = useOrders({ page, limit: 10, status: status as any, search });
+  const { data, isLoading } = useOrders({ page, limit: 10, status: status as any, paymentStatus, search });
 
   return (
     <div className="space-y-6">
@@ -56,6 +62,23 @@ function OrdersPage() {
             <option value="returned">Returned</option>
           </select>
         </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Filter className="text-gray-400 w-4 h-4" />
+          <select
+            value={paymentStatus}
+            onChange={(e) => {
+              setPaymentStatus(e.target.value);
+              setPage(1);
+            }}
+            className="w-full sm:w-48 py-2 px-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          >
+            <option value="">All Payment Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="failed">Failed</option>
+            <option value="refunded">Refunded</option>
+          </select>
+        </div>
       </div>
 
       {/* Table */}
@@ -67,7 +90,8 @@ function OrdersPage() {
                 <th className="px-6 py-4 font-medium">Order ID</th>
                 <th className="px-6 py-4 font-medium">Date</th>
                 <th className="px-6 py-4 font-medium">Customer</th>
-                <th className="px-6 py-4 font-medium">Status</th>
+                <th className="px-6 py-4 font-medium">Order Status</th>
+                <th className="px-6 py-4 font-medium">Payment</th>
                 <th className="px-6 py-4 font-medium text-right">Total</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
@@ -84,18 +108,18 @@ function OrdersPage() {
                     <td className="px-6 py-4"><div className="h-8 bg-gray-200 rounded w-8 ml-auto"></div></td>
                   </tr>
                 ))
-              ) : data?.data.length === 0 ? (
+              ) : data?.data?.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                     No orders found matching your criteria.
                   </td>
                 </tr>
               ) : (
-                data?.data.map((order) => (
+                data?.data?.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 font-medium text-gray-900">{order.orderNumber}</td>
                     <td className="px-6 py-4 text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
+                      {formatSafeDate(order.createdAt || (order as any).created_at)}
                     </td>
                     <td className="px-6 py-4">
                       {order.user ? (
@@ -114,6 +138,15 @@ function OrdersPage() {
                         order.orderStatus === 'shipped' ? 'bg-blue-100 text-blue-800' :
                         'bg-yellow-100 text-yellow-800'}`}>
                         {order.orderStatus.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
+                        ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+                        order.paymentStatus === 'failed' ? 'bg-red-100 text-red-800' :
+                        order.paymentStatus === 'refunded' ? 'bg-purple-100 text-purple-800' :
+                        'bg-yellow-100 text-yellow-800'}`}>
+                        {order.paymentStatus}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right font-medium">

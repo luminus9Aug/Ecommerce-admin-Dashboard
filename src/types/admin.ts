@@ -175,11 +175,12 @@ export interface CursorPaginatedResponse<T> {
 export type OrderStatus =
   | "pending"
   | "confirmed"
+  | "processing"
   | "shipped"
   | "delivered"
   | "cancelled"
-  | "return_requested"
-  | "returned";
+  | "returned"
+  | "completed";
 
 export type PaymentMethod = "cod" | "razorpay" | "stripe";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
@@ -188,11 +189,12 @@ export interface OrderItem {
   id: string;
   productId: string;
   productName: string;
-  productImage: string;
+  productImageUrl: string;
   sku: string;
   quantity: number;
-  unitPrice: number;
-  subtotal: number;
+  sellingPrice: number;
+  totalPrice: number;
+  mrp: number;
   variantId?: string;
   attributes?: Record<string, string>;
 }
@@ -205,15 +207,31 @@ export interface ShippingAddress {
   city: string;
   state: string;
   pincode: string;
+  company?: string;
+  email?: string;
+  country?: string;
 }
 
 export interface Order {
   id: string;
   orderNumber: string;
-  status: OrderStatus;
+  orderStatus: OrderStatus;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   totalAmount: number;
+  subtotal: number;
+  discountAmount: number;
+  couponDiscount: number;
+  deliveryCharges: number;
+  couponCode?: string;
+  paymentId?: string;
+  confirmedAt?: string;
+  shippedAt?: string;
+  deliveredAt?: string;
+  cancelledAt?: string;
+  trackingNumber?: string;
+  returnStatus?: "none" | "requested" | "approved" | "rejected" | "completed";
+  returnReason?: string;
   shippingAddress: ShippingAddress;
   items: OrderItem[];
   user?: {
@@ -221,6 +239,7 @@ export interface Order {
     firstName: string;
     lastName: string;
     email: string;
+    phoneNumber?: string;
   };
   createdAt: string;
   updatedAt: string;
@@ -531,4 +550,55 @@ export interface NotificationBadges {
   pendingQuotes: number;
   openTickets: number;
   pendingCreditTerms: number;
+}
+
+export interface OrderTracking {
+  id: string;
+  status: string;
+  location?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface InvoiceConfig {
+  id: string;
+  businessName: string;
+  gstin?: string;
+  pan?: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
+  email?: string;
+  phone?: string;
+  bankName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+  cgstRate: number;
+  sgstRate: number;
+  igstRate: number;
+  taxType: "cgst_sgst" | "igst";
+  logoUrl?: string;
+  stampUrl?: string;
+  signatureUrl?: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminInvoice {
+  id: string;
+  invoiceNumber: string;
+  amount: number;
+  status: string;
+  dueDate: string;
+  notes?: string;
+  invoiceType: "b2c" | "b2b";
+  taxBreakdown: Record<string, any>;
+  order: Order;
+  invoiceConfig?: InvoiceConfig;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -182,8 +182,7 @@ export function TopBar() {
                 Notifications
               </p>
               <Link
-                to="/admin/users"
-                search={{ role: "b2b", isApproved: "false" } as any}
+                to="/admin/b2b/companies"
                 className="flex items-center justify-between rounded px-2 py-2 text-sm hover:bg-slate-50"
               >
                 <span>{badges?.pendingB2BApprovals ?? 0} B2B approvals pending</span>

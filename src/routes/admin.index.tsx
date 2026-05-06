@@ -281,7 +281,7 @@ function DashboardPage() {
                   <th className="py-2">Order</th>
                   <th>Customer</th>
                   <th className="text-right">Amount</th>
-                  <th>Status</th>
+                  <th className="py-2 text-center">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -299,8 +299,10 @@ function DashboardPage() {
                     <td className="text-slate-700">
                       {o.user ? `${o.user.firstName} ${o.user.lastName}` : "—"}
                     </td>
-                    <td className="text-right font-medium">{formatCurrency(o.totalAmount)}</td>
-                    <td><StatusBadge status={o.status} type="order" /></td>
+                    <td className="text-right font-medium">
+                      {formatCurrency(o.totalAmount)}
+                    </td>
+                    <td className="text-center"><StatusBadge status={o.orderStatus} type="order" /></td>
                   </tr>
                 ))}
                 {(d?.recentOrders?.data ?? []).length === 0 && (

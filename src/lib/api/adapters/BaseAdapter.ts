@@ -18,7 +18,8 @@ export class BaseAdapter {
     }
 
     // Normalize backend pagination { items, meta } -> frontend format
-    if (inner && typeof inner === 'object' && 'items' in inner) {
+    // ONLY if it has both items and meta (otherwise it might be a single entity with an 'items' relation like Order)
+    if (inner && typeof inner === 'object' && 'items' in inner && 'meta' in inner) {
       // Handle Cursor Pagination
       if (inner.meta && 'nextCursor' in inner.meta) {
         return {
@@ -33,7 +34,7 @@ export class BaseAdapter {
         total: inner.meta?.total ?? 0,
         page: inner.meta?.page ?? 1,
         limit: inner.meta?.limit ?? 10,
-        totalPages: inner.meta?.lastPage ?? 1,
+        totalPages: inner.meta?.totalPages ?? inner.meta?.lastPage ?? 1,
       } as unknown as T;
     }
 

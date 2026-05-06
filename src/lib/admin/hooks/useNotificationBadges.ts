@@ -27,7 +27,7 @@ export function useNotificationBadges() {
             () =>
               adminApiClient
                 .get("/users", {
-                  params: { role: "b2b", isApproved: false, limit: 1 },
+                  params: { role: "company", isApproved: false, limit: 1 },
                   ...{ _silent: true } as any
                 })
                 .then((r) => r.data?.data || r.data),
