@@ -285,7 +285,7 @@ function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {(d?.recentOrders?.data ?? []).map((o) => (
+                {(d?.recentOrders?.data ?? []).slice(0, 5).map((o) => (
                   <tr key={o.id} className="border-t border-slate-100">
                     <td className="py-3">
                       <Link
