@@ -84,7 +84,6 @@ export interface Product {
   mrp: number;
   sellingPrice: number;
   b2bPrice?: number;
-  wholesalePrice?: number;
   stockQuantity: number;
   sku: string;
   isFeatured: boolean;
@@ -121,7 +120,6 @@ export interface CreateProductVariantPayload {
   mrp: number;
   sellingPrice: number;
   b2bPrice?: number;
-  wholesalePrice?: number;
   stockQuantity?: number;
   isActive?: boolean;
 }
@@ -135,7 +133,6 @@ export interface CreateProductPayload {
   mrp?: number;
   sellingPrice?: number;
   b2bPrice?: number;
-  wholesalePrice?: number;
   stockQuantity?: number;
   lowStockThreshold?: number;
   sku?: string;

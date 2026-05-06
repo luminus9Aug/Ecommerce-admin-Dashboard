@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ImageUploader } from "@/components/admin/shared/ImageUploader";
 import { useCategories } from "@/lib/admin/hooks/useCategories";
 import { useCreateProduct, useUpdateProduct } from "@/lib/admin/hooks/useProducts";
-import { Plus, Trash2, PlusCircle, FolderPlus } from "lucide-react";
+import { Plus, Trash2, PlusCircle, FolderPlus, Wand2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CategoryFormModal } from "./CategoryFormModal";
 import type { CreateProductPayload, Product } from "@/types/admin";
@@ -60,6 +60,13 @@ const productSchema = z.object({
   ogDescription: z.string().optional(),
   ogImage: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   searchKeywords: z.string().optional(), // comma-separated, split on submit
+  specifications: z.array(z.object({ key: z.string().min(1), value: z.string() })).max(4).default([]),
+  colLabels: z.object({
+    col1: z.string().optional(),
+    col2: z.string().optional(),
+    col3: z.string().optional(),
+    col4: z.string().optional(),
+  }).default({}),
 }).superRefine((data, ctx) => {
   if (!data.hasVariants) {
     if (data.mrp === undefined || data.mrp === null) {
@@ -117,6 +124,8 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
       ogDescription: "",
       ogImage: "",
       searchKeywords: "",
+      specifications: [],
+      colLabels: { col1: "", col2: "", col3: "", col4: "" },
     },
   });
 
@@ -127,6 +136,10 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
   const { fields: variantFields, append: addVariant, remove: removeVariant } = useFieldArray({
     control: form.control,
     name: "variants",
+  });
+  const { fields: specFields, append: addSpec, remove: removeSpec } = useFieldArray({
+    control: form.control,
+    name: "specifications",
   });
 
   const name = form.watch("name");
@@ -143,7 +156,7 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
           brand: product.brand || "",
           slug: product.slug,
           description: product.description || "",
-          categoryId: product.categoryId || "none",
+          categoryId: product.categoryId || (product.category as any)?.id || "none",
           sku: product.sku || "",
           hasVariants: product.hasVariants,
           isFeatured: product.isFeatured,
@@ -174,6 +187,15 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
           ogDescription: product.ogDescription || "",
           ogImage: product.ogImage || "",
           searchKeywords: product.searchKeywords?.join(", ") || "",
+          specifications: Object.entries(product.specifications || {})
+            .filter(([k]) => !k.startsWith("__"))
+            .map(([key, value]) => ({ key, value: String(value) })),
+          colLabels: {
+            col1: product.specifications?.__col1Label || "",
+            col2: product.specifications?.__col2Label || "",
+            col3: product.specifications?.__col3Label || "",
+            col4: product.specifications?.__col4Label || "",
+          },
         });
       } else {
         // Reset for new
@@ -200,6 +222,8 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
           ogDescription: "",
           ogImage: "",
           searchKeywords: "",
+          specifications: [],
+          colLabels: { col1: "", col2: "", col3: "", col4: "" },
         });
       }
     }
@@ -210,6 +234,18 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
       form.setValue("slug", toSlug(name), { shouldValidate: false });
     }
   }, [name, form, product]);
+
+  const handleGenerateSku = () => {
+    const brand = form.getValues("brand");
+    const name = form.getValues("name");
+    if (!name) return;
+
+    const brandPart = brand ? brand.slice(0, 3).toUpperCase() : "PROD";
+    const namePart = toSlug(name).split("-").map(w => w[0]).join("").toUpperCase().slice(0, 4);
+    const random = Math.floor(100 + Math.random() * 900);
+    const sku = `${brandPart}-${namePart}-${random}`;
+    form.setValue("sku", sku, { shouldValidate: true });
+  };
 
   const onSubmit = async (values: ProductFormValues) => {
     const payload: CreateProductPayload = {
@@ -236,6 +272,16 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
       searchKeywords: values.searchKeywords
         ? values.searchKeywords.split(",").map((k) => k.trim()).filter(Boolean)
         : undefined,
+      specifications: {
+        ...values.specifications.reduce((acc, { key, value }) => {
+          if (key) acc[key] = value;
+          return acc;
+        }, {} as Record<string, string>),
+        __col1Label: values.colLabels.col1 || "",
+        __col2Label: values.colLabels.col2 || "",
+        __col3Label: values.colLabels.col3 || "",
+        __col4Label: values.colLabels.col4 || "",
+      },
     };
 
     if (values.hasVariants) {
@@ -316,8 +362,21 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
                   )} />
                   <FormField control={form.control} name="sku" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>SKU</FormLabel>
-                      <FormControl><Input placeholder="e.g. TTR-WAX" {...field} /></FormControl>
+                      <FormLabel className="flex items-center justify-between">
+                        SKU
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 text-[10px] text-blue-600 px-1"
+                          onClick={handleGenerateSku}
+                        >
+                          <Wand2 className="h-3 w-3 mr-1" /> Generate
+                        </Button>
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. TTR-WAX" {...field} />
+                      </FormControl>
                       <FormDescription className="text-xs">Prefix for variant SKUs</FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -331,6 +390,66 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
                     <FormMessage />
                   </FormItem>
                 )} />
+
+                {/* Dynamic Specifications */}
+                <div className="space-y-3 p-4 border rounded-lg bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-medium">Product Specifications</h4>
+                      <p className="text-xs text-muted-foreground">Add up to 4 custom attributes (e.g. Material: Wax)</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={specFields.length >= 4}
+                      onClick={() => addSpec({ key: "", value: "" })}
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1" /> Add
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {specFields.map((field, index) => (
+                      <div key={field.id} className="flex gap-2 items-start">
+                        <FormField
+                          control={form.control}
+                          name={`specifications.${index}.key`}
+                          render={({ field }) => (
+                            <FormItem className="flex-1">
+                              <FormControl><Input placeholder="Key (e.g. Material)" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`specifications.${index}.value`}
+                          render={({ field }) => (
+                            <FormItem className="flex-1">
+                              <FormControl><Input placeholder="Value (e.g. Wax)" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive mt-1"
+                          onClick={() => removeSpec(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    {specFields.length === 0 && (
+                      <p className="text-xs text-center text-muted-foreground py-2 border border-dashed rounded">
+                        No specifications added yet.
+                      </p>
+                    )}
+                  </div>
+                </div>
 
                 <FormField control={form.control} name="categoryId" render={({ field }) => (
                   <FormItem>
@@ -372,6 +491,56 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
                       <FormLabel className="!mt-0">Featured</FormLabel>
                     </FormItem>
                   )} />
+                </div>
+
+                {/* Recommendation Grid Labels */}
+                <div className="space-y-3 p-4 border rounded-lg bg-muted/20">
+                  <div>
+                    <h4 className="text-sm font-medium">Recommendation Grid Labels</h4>
+                    <p className="text-xs text-muted-foreground">Customise labels for the 4 recommendation columns on PDP</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <FormField
+                      control={form.control}
+                      name="colLabels.col1"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] uppercase">Column 1</FormLabel>
+                          <FormControl><Input placeholder="Related Products" {...field} /></FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="colLabels.col2"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] uppercase">Column 2</FormLabel>
+                          <FormControl><Input placeholder="You May Also Like" {...field} /></FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="colLabels.col3"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] uppercase">Column 3</FormLabel>
+                          <FormControl><Input placeholder="Same Brand" {...field} /></FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="colLabels.col4"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] uppercase">Column 4</FormLabel>
+                          <FormControl><Input placeholder="Featured Products" {...field} /></FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               </TabsContent>
 
