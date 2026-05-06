@@ -154,6 +154,12 @@ export function Sidebar() {
           label="Invoices"
           collapsed={collapsed}
         />
+        <NavItem
+          href="/admin/invoice-config"
+          icon={FileText}
+          label="Invoice Config"
+          collapsed={collapsed}
+        />
 
         {/* <NavItem
           href="/admin/content/banners"

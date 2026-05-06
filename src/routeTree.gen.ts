@@ -15,6 +15,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminInvoiceConfigRouteImport } from './routes/admin.invoice-config'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminAdSlotsRouteImport } from './routes/admin.ad-slots'
@@ -38,6 +39,7 @@ import { Route as AdminB2bCreditTermsRouteImport } from './routes/admin.b2b.cred
 import { Route as AdminB2bCompaniesRouteImport } from './routes/admin.b2b.companies'
 import { Route as AdminContentBlogIndexRouteImport } from './routes/admin.content.blog.index'
 import { Route as AdminProductsIdEditRouteImport } from './routes/admin.products.$id.edit'
+import { Route as AdminOrdersIdInvoiceRouteImport } from './routes/admin.orders.$id_.invoice'
 import { Route as AdminContentBlogNewRouteImport } from './routes/admin.content.blog.new'
 import { Route as AdminContentBlogIdEditRouteImport } from './routes/admin.content.blog.$id.edit'
 
@@ -69,6 +71,11 @@ const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminInvoiceConfigRoute = AdminInvoiceConfigRouteImport.update({
+  id: '/invoice-config',
+  path: '/invoice-config',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
@@ -187,6 +194,11 @@ const AdminProductsIdEditRoute = AdminProductsIdEditRouteImport.update({
   path: '/products/$id/edit',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminOrdersIdInvoiceRoute = AdminOrdersIdInvoiceRouteImport.update({
+  id: '/orders/$id_/invoice',
+  path: '/orders/$id/invoice',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminContentBlogNewRoute = AdminContentBlogNewRouteImport.update({
   id: '/content/blog/new',
   path: '/content/blog/new',
@@ -204,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/admin/ad-slots': typeof AdminAdSlotsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/invoice-config': typeof AdminInvoiceConfigRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -227,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/admin/support/': typeof AdminSupportIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
   '/admin/content/blog/new': typeof AdminContentBlogNewRoute
+  '/admin/orders/$id/invoice': typeof AdminOrdersIdInvoiceRoute
   '/admin/products/$id/edit': typeof AdminProductsIdEditRoute
   '/admin/content/blog/': typeof AdminContentBlogIndexRoute
   '/admin/content/blog/$id/edit': typeof AdminContentBlogIdEditRoute
@@ -236,6 +250,7 @@ export interface FileRoutesByTo {
   '/admin/ad-slots': typeof AdminAdSlotsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/invoice-config': typeof AdminInvoiceConfigRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -259,6 +274,7 @@ export interface FileRoutesByTo {
   '/admin/support': typeof AdminSupportIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/admin/content/blog/new': typeof AdminContentBlogNewRoute
+  '/admin/orders/$id/invoice': typeof AdminOrdersIdInvoiceRoute
   '/admin/products/$id/edit': typeof AdminProductsIdEditRoute
   '/admin/content/blog': typeof AdminContentBlogIndexRoute
   '/admin/content/blog/$id/edit': typeof AdminContentBlogIdEditRoute
@@ -270,6 +286,7 @@ export interface FileRoutesById {
   '/admin/ad-slots': typeof AdminAdSlotsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/invoice-config': typeof AdminInvoiceConfigRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -293,6 +310,7 @@ export interface FileRoutesById {
   '/admin/support/': typeof AdminSupportIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
   '/admin/content/blog/new': typeof AdminContentBlogNewRoute
+  '/admin/orders/$id_/invoice': typeof AdminOrdersIdInvoiceRoute
   '/admin/products/$id/edit': typeof AdminProductsIdEditRoute
   '/admin/content/blog/': typeof AdminContentBlogIndexRoute
   '/admin/content/blog/$id/edit': typeof AdminContentBlogIdEditRoute
@@ -305,6 +323,7 @@ export interface FileRouteTypes {
     | '/admin/ad-slots'
     | '/admin/analytics'
     | '/admin/categories'
+    | '/admin/invoice-config'
     | '/admin/login'
     | '/admin/payments'
     | '/admin/settings'
@@ -328,6 +347,7 @@ export interface FileRouteTypes {
     | '/admin/support/'
     | '/admin/users/'
     | '/admin/content/blog/new'
+    | '/admin/orders/$id/invoice'
     | '/admin/products/$id/edit'
     | '/admin/content/blog/'
     | '/admin/content/blog/$id/edit'
@@ -337,6 +357,7 @@ export interface FileRouteTypes {
     | '/admin/ad-slots'
     | '/admin/analytics'
     | '/admin/categories'
+    | '/admin/invoice-config'
     | '/admin/login'
     | '/admin/payments'
     | '/admin/settings'
@@ -360,6 +381,7 @@ export interface FileRouteTypes {
     | '/admin/support'
     | '/admin/users'
     | '/admin/content/blog/new'
+    | '/admin/orders/$id/invoice'
     | '/admin/products/$id/edit'
     | '/admin/content/blog'
     | '/admin/content/blog/$id/edit'
@@ -370,6 +392,7 @@ export interface FileRouteTypes {
     | '/admin/ad-slots'
     | '/admin/analytics'
     | '/admin/categories'
+    | '/admin/invoice-config'
     | '/admin/login'
     | '/admin/payments'
     | '/admin/settings'
@@ -393,6 +416,7 @@ export interface FileRouteTypes {
     | '/admin/support/'
     | '/admin/users/'
     | '/admin/content/blog/new'
+    | '/admin/orders/$id_/invoice'
     | '/admin/products/$id/edit'
     | '/admin/content/blog/'
     | '/admin/content/blog/$id/edit'
@@ -446,6 +470,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/invoice-config': {
+      id: '/admin/invoice-config'
+      path: '/invoice-config'
+      fullPath: '/admin/invoice-config'
+      preLoaderRoute: typeof AdminInvoiceConfigRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/categories': {
@@ -609,6 +640,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsIdEditRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/orders/$id_/invoice': {
+      id: '/admin/orders/$id_/invoice'
+      path: '/orders/$id/invoice'
+      fullPath: '/admin/orders/$id/invoice'
+      preLoaderRoute: typeof AdminOrdersIdInvoiceRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/content/blog/new': {
       id: '/admin/content/blog/new'
       path: '/content/blog/new'
@@ -630,6 +668,7 @@ interface AdminRouteChildren {
   AdminAdSlotsRoute: typeof AdminAdSlotsRoute
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminInvoiceConfigRoute: typeof AdminInvoiceConfigRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -652,6 +691,7 @@ interface AdminRouteChildren {
   AdminSupportIndexRoute: typeof AdminSupportIndexRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   AdminContentBlogNewRoute: typeof AdminContentBlogNewRoute
+  AdminOrdersIdInvoiceRoute: typeof AdminOrdersIdInvoiceRoute
   AdminProductsIdEditRoute: typeof AdminProductsIdEditRoute
   AdminContentBlogIndexRoute: typeof AdminContentBlogIndexRoute
   AdminContentBlogIdEditRoute: typeof AdminContentBlogIdEditRoute
@@ -661,6 +701,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdSlotsRoute: AdminAdSlotsRoute,
   AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminInvoiceConfigRoute: AdminInvoiceConfigRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
@@ -683,6 +724,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSupportIndexRoute: AdminSupportIndexRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
   AdminContentBlogNewRoute: AdminContentBlogNewRoute,
+  AdminOrdersIdInvoiceRoute: AdminOrdersIdInvoiceRoute,
   AdminProductsIdEditRoute: AdminProductsIdEditRoute,
   AdminContentBlogIndexRoute: AdminContentBlogIndexRoute,
   AdminContentBlogIdEditRoute: AdminContentBlogIdEditRoute,
