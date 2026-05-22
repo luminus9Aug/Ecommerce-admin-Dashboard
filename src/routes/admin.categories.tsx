@@ -5,7 +5,7 @@ import { DataTable } from "@/components/admin/shared/DataTable";
 import { PageHeader } from "@/components/admin/shared/PageHeader";
 import { StatusBadge } from "@/components/admin/shared/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Edit } from "lucide-react";
 import { useCategories, useDeleteCategory } from "@/lib/admin/hooks/useCategories";
 import { CategoryFormModal } from "@/components/admin/products/CategoryFormModal";
 import type { Category } from "@/types/admin";
@@ -14,7 +14,10 @@ export const Route = createFileRoute("/admin/categories")({
   component: CategoriesPage,
 });
 
-const useColumns = (onDelete: (id: string) => void): ColumnDef<Category>[] => [
+const useColumns = (
+  onEdit: (category: Category) => void,
+  onDelete: (id: string) => void
+): ColumnDef<Category>[] => [
   {
     accessorKey: "name",
     header: "Category",
@@ -55,20 +58,30 @@ const useColumns = (onDelete: (id: string) => void): ColumnDef<Category>[] => [
     id: "actions",
     header: "",
     cell: ({ row }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-destructive hover:text-destructive"
-        onClick={() => onDelete(row.original.id)}
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onEdit(row.original)}
+        >
+          <Edit className="h-4 w-4 text-slate-500 hover:text-slate-800" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+          onClick={() => onDelete(row.original.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
     ),
   },
 ];
 
 function CategoriesPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | undefined>(undefined);
   const { data: categories = [], isLoading } = useCategories();
   const deleteCategory = useDeleteCategory();
 
@@ -78,13 +91,23 @@ function CategoriesPage() {
     }
   };
 
-  const columns = useColumns(handleDelete);
+  const handleEdit = (category: Category) => {
+    setSelectedCategory(category);
+    setModalOpen(true);
+  };
+
+  const handleAddClick = () => {
+    setSelectedCategory(undefined);
+    setModalOpen(true);
+  };
+
+  const columns = useColumns(handleEdit, handleDelete);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <PageHeader title="Categories" description="Manage product categories" />
-        <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setModalOpen(true)}>
+        <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleAddClick}>
           <Plus className="mr-2 h-4 w-4" /> Add Category
         </Button>
       </div>
@@ -95,7 +118,14 @@ function CategoriesPage() {
         loading={isLoading}
       />
 
-      <CategoryFormModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <CategoryFormModal
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedCategory(undefined);
+        }}
+        initialData={selectedCategory}
+      />
     </div>
   );
 }
