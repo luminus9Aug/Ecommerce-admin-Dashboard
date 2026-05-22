@@ -39,11 +39,11 @@ const columns: ColumnDef<User>[] = [
     },
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "isActive",
+    header: "status",
     cell: ({ row }) => (
       <StatusBadge
-        status={row.getValue("status") as string}
+        status={row.getValue("isActive") ? "active" : "inactive"}
         type="user"
       />
     ),
@@ -62,9 +62,9 @@ function UsersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <PageHeader title="Users" description="Manage customers and administrators" />
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        {/* <Button className="bg-blue-600 hover:bg-blue-700">
           <Plus className="mr-2 h-4 w-4" /> Add User
-        </Button>
+        </Button> */}
       </div>
 
       <DataTable

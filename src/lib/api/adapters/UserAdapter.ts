@@ -30,7 +30,7 @@ class UserAdapter extends BaseAdapter {
   public async deleteUser(id: string): Promise<void> {
     return this.delete<void>(API_ENDPOINTS.USERS.BY_ID(id));
   }
-  
+
   public async getProfile(): Promise<{ role?: string }> {
     return this.get<{ role?: string }>(API_ENDPOINTS.USERS.PROFILE);
   }
