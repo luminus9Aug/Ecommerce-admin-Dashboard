@@ -148,12 +148,12 @@ export function Sidebar() {
             label="Credit Terms"
             collapsed={collapsed}
           /> */}
-        <NavItem
+        {/* <NavItem
           href="/admin/b2b/invoices"
           icon={Receipt}
           label="Invoices"
           collapsed={collapsed}
-        />
+        /> */}
         <NavItem
           href="/admin/invoice-config"
           icon={FileText}
@@ -173,12 +173,12 @@ export function Sidebar() {
           label="Blog"
           collapsed={collapsed}
         />
-        <NavItem
+        {/* <NavItem
           href="/admin/content/faq"
           icon={HelpCircle}
           label="FAQ"
           collapsed={collapsed}
-        />
+        /> */}
         <NavItem
           href="/admin/ad-slots"
           icon={Layout}

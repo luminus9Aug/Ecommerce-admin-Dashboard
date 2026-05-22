@@ -42,9 +42,9 @@ const columns: ColumnDef<User>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
-      <StatusBadge 
-        status={row.getValue("status") as string} 
-        type="user" 
+      <StatusBadge
+        status={row.getValue("status") as string}
+        type="user"
       />
     ),
   },
@@ -53,8 +53,10 @@ const columns: ColumnDef<User>[] = [
 function UsersPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  
+
   const { data, isLoading } = useUsers({ page, limit });
+
+  console.log('data', data)
 
   return (
     <div className="space-y-6">
