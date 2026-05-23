@@ -36,7 +36,7 @@ class UserAdapter extends BaseAdapter {
   }
 
   public async performAction(id: string, action: string): Promise<any> {
-    return this.patch<any>(`/users/${id}/${action}`);
+    return this.post<any>(`/users/${id}/${action}`);
   }
 
   public async approveB2B(id: string): Promise<any> {

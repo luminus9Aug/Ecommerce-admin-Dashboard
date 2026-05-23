@@ -16,9 +16,8 @@ const COLOR_MAP: Record<string, string> = {
   "user:suspended": "bg-red-100 text-red-800",
   "user:pending": "bg-orange-100 text-orange-800",
   "user:user": "bg-gray-100 text-gray-800",
-  "user:b2b": "bg-blue-100 text-blue-800",
+  "user:company": "bg-blue-100 text-blue-800",
   "user:admin": "bg-purple-100 text-purple-800",
-  "user:super_admin": "bg-red-100 text-red-800",
   // ticket
   "ticket:open": "bg-blue-100 text-blue-800",
   "ticket:in_progress": "bg-yellow-100 text-yellow-800",

@@ -24,7 +24,7 @@ function InvoicePage() {
     <div className="space-y-6 max-w-4xl mx-auto pb-12">
       <div className="flex items-center justify-between no-print">
         <div className="flex items-center gap-4">
-          <Link to={`/admin/orders/${id}`} className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+          <Link to="/admin/orders/$id" params={{ id }} className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
             <ArrowLeft className="w-4 h-4 text-gray-600" />
           </Link>
           <PageHeader

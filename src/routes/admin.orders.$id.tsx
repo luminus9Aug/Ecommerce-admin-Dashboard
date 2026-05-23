@@ -30,7 +30,7 @@ function OrderDetailPage() {
   const updateOrder = useUpdateOrderAdmin(id);
   const { data: invoice } = useGetInvoiceByOrder(id);
   const generateInvoice = useGenerateInvoice();
-  
+
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [invoiceNotes, setInvoiceNotes] = useState("");
 
@@ -75,7 +75,7 @@ function OrderDetailPage() {
         <div className="flex items-center gap-2">
           {invoice ? (
             <div className="flex items-center gap-2">
-               <Button variant="outline" size="sm" onClick={() => navigate({ to: `/admin/orders/${id}/invoice` })}>
+              <Button variant="outline" size="sm" onClick={() => navigate({ to: `/admin/orders/${id}/invoice` })}>
                 <FileText className="w-4 h-4 mr-2" /> View Invoice
               </Button>
             </div>
@@ -94,9 +94,9 @@ function OrderDetailPage() {
                   <p className="text-sm text-gray-500">This will generate an Indian GST compliant invoice for order {order.orderNumber}.</p>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Additional Notes (Optional)</label>
-                    <textarea 
-                      className="w-full border rounded-md p-2 text-sm focus:outline-none focus:ring-1 focus:ring-black" 
-                      rows={3} 
+                    <textarea
+                      className="w-full border rounded-md p-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                      rows={3}
                       placeholder="Special instructions or notes for the invoice..."
                       value={invoiceNotes}
                       onChange={(e) => setInvoiceNotes(e.target.value)}
@@ -117,48 +117,49 @@ function OrderDetailPage() {
 
       {/* Top Quick Info Bar */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
-         <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex gap-6">
-              <EditableStatusField 
-                label="Order Status"
-                value={order.orderStatus}
-                options={[
-                  { label: 'Pending', value: 'pending' },
-                  { label: 'Confirmed', value: 'confirmed' },
-                  { label: 'Processing', value: 'processing' },
-                  { label: 'Shipped', value: 'shipped' },
-                  { label: 'Delivered', value: 'delivered' },
-                  { label: 'Cancelled', value: 'cancelled' },
-                  { label: 'Returned', value: 'returned' },
-                  { label: 'Completed', value: 'completed' },
-                ]}
-                onSave={async (v) => { await updateOrder.mutateAsync({ orderStatus: v as any }); }}
-                isLoading={updateOrder.isPending}
-              />
-              <EditableStatusField 
-                label="Payment Status"
-                value={order.paymentStatus}
-                options={[
-                  { label: 'Pending', value: 'pending' },
-                  { label: 'Paid', value: 'paid' },
-                  { label: 'Failed', value: 'failed' },
-                  { label: 'Refunded', value: 'refunded' },
-                ]}
-                onSave={async (v) => { await updateOrder.mutateAsync({ paymentStatus: v as any }); }}
-                isLoading={updateOrder.isPending}
-              />
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex gap-6">
+            <EditableStatusField
+              label="Order Status"
+              value={order.orderStatus}
+              options={[
+                { label: 'Initiated', value: 'initiated' },
+                { label: 'Pending', value: 'pending' },
+                { label: 'Confirmed', value: 'confirmed' },
+                { label: 'Processing', value: 'processing' },
+                { label: 'Shipped', value: 'shipped' },
+                { label: 'Delivered', value: 'delivered' },
+                { label: 'Cancelled', value: 'cancelled' },
+                { label: 'Returned', value: 'returned' },
+                { label: 'Completed', value: 'completed' },
+              ]}
+              onSave={async (v) => { await updateOrder.mutateAsync({ orderStatus: v as any }); }}
+              isLoading={updateOrder.isPending}
+            />
+            <EditableStatusField
+              label="Payment Status"
+              value={order.paymentStatus}
+              options={[
+                { label: 'Pending', value: 'pending' },
+                { label: 'Paid', value: 'paid' },
+                { label: 'Failed', value: 'failed' },
+                { label: 'Refunded', value: 'refunded' },
+              ]}
+              onSave={async (v) => { await updateOrder.mutateAsync({ paymentStatus: v as any }); }}
+              isLoading={updateOrder.isPending}
+            />
+          </div>
+          <div className="flex gap-8 text-right">
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Tracking #</span>
+              <span className="text-sm font-semibold">{order.trackingNumber || 'Not assigned'}</span>
             </div>
-            <div className="flex gap-8 text-right">
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Tracking #</span>
-                <span className="text-sm font-semibold">{order.trackingNumber || 'Not assigned'}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</span>
-                <span className="text-sm font-bold text-gray-900">{formatCurrency(Number(order.totalAmount))}</span>
-              </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</span>
+              <span className="text-sm font-bold text-gray-900">{formatCurrency(Number(order.totalAmount))}</span>
             </div>
-         </div>
+          </div>
+        </div>
       </div>
 
       {/* Metadata Row: 4 Columns (Invoice, Customer, Shipping, Payment) */}
@@ -181,7 +182,7 @@ function OrderDetailPage() {
                 <p className="text-xl font-black text-gray-900">{formatCurrency(Number(invoice.amount))}</p>
                 <p className="text-[10px] text-gray-500 uppercase font-medium mt-1">Due: <span className="font-bold text-black">{formatSafeDate(invoice.dueDate, 'dd MMM yyyy')}</span></p>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-2 mt-auto">
                 <Button variant="outline" size="sm" className="w-full text-[10px] h-7 px-2" onClick={() => navigate({ to: `/admin/orders/${id}/invoice` })}>
                   View Live
@@ -193,12 +194,12 @@ function OrderDetailPage() {
             </div>
           </div>
         ) : (
-           <div className="border border-dashed border-gray-200 rounded-xl bg-gray-50 flex items-center justify-center p-4 text-center">
-             <div className="space-y-1">
-               <FileText className="w-6 h-6 text-gray-300 mx-auto" />
-               <p className="text-xs font-medium text-gray-500">No Invoice Generated</p>
-             </div>
-           </div>
+          <div className="border border-dashed border-gray-200 rounded-xl bg-gray-50 flex items-center justify-center p-4 text-center">
+            <div className="space-y-1">
+              <FileText className="w-6 h-6 text-gray-300 mx-auto" />
+              <p className="text-xs font-medium text-gray-500">No Invoice Generated</p>
+            </div>
+          </div>
         )}
 
         {/* Customer */}
@@ -261,6 +262,48 @@ function OrderDetailPage() {
         </div>
       </div>
 
+      {/* UPI Manual Verification Card */}
+      {order.orderStatus === "initiated" && order.paymentMethod === "upi" && (
+        <div className="bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-900/50 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-sm animate-in fade-in duration-300">
+          <div className="flex gap-4">
+            <div>
+              <div className="rounded-full bg-amber-100 dark:bg-amber-900/50 p-3 text-amber-700 dark:text-amber-300 shrink-0">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5 flex-1 min-w-0">
+              <h3 className="font-bold text-amber-900 dark:text-amber-200 text-base">Awaiting UPI Manual Verification</h3>
+              <p className="text-sm text-amber-800 dark:text-amber-300">
+                This order was placed using the **UPI QR** option. Please verify that the total amount has been received in your merchant account before confirming the order.
+              </p>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5 pt-1 text-xs">
+                <div>
+                  <span className="font-semibold text-amber-700 dark:text-amber-400">UTR / Transaction ID:</span>
+                  <span className="ml-2 font-mono bg-white dark:bg-zinc-900 px-2 py-0.5 border border-amber-200 dark:border-amber-800 rounded text-sm text-foreground select-all tracking-wider font-bold">
+                    {order.paymentId || "N/A"}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-semibold text-amber-700 dark:text-amber-400">Total Payable:</span>
+                  <span className="ml-2 font-bold text-amber-900 dark:text-amber-200">{formatCurrency(Number(order.totalAmount))}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <Button
+            size="lg"
+            className="bg-amber-600 hover:bg-amber-700 text-white shrink-0 shadow-sm transition-all duration-200 font-semibold"
+            disabled={updateOrder.isPending}
+            onClick={async () => {
+              await updateOrder.mutateAsync({ orderStatus: "confirmed", paymentStatus: "completed" });
+            }}
+          >
+            {updateOrder.isPending ? "Confirming..." : "Verify & Confirm Order"}
+          </Button>
+        </div>
+      )}
+
       {/* Main Content Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         <div className="lg:col-span-2 flex flex-col space-y-6">
@@ -275,14 +318,14 @@ function OrderDetailPage() {
                 </div>
                 <p className="text-sm text-orange-800"><span className="font-semibold">Reason:</span> {order.returnReason || 'No reason provided'}</p>
                 <div className="flex gap-2 pt-2">
-                   <Button size="sm" variant="outline" className="bg-white border-orange-200 hover:bg-orange-100 text-orange-900" 
-                      onClick={() => updateOrder.mutate({ returnStatus: 'approved' })}>
-                      Approve Return
-                   </Button>
-                   <Button size="sm" variant="outline" className="bg-white border-orange-200 hover:bg-orange-100 text-orange-900"
-                      onClick={() => updateOrder.mutate({ returnStatus: 'rejected' })}>
-                      Reject Return
-                   </Button>
+                  <Button size="sm" variant="outline" className="bg-white border-orange-200 hover:bg-orange-100 text-orange-900"
+                    onClick={() => updateOrder.mutate({ returnStatus: 'approved' })}>
+                    Approve Return
+                  </Button>
+                  <Button size="sm" variant="outline" className="bg-white border-orange-200 hover:bg-orange-100 text-orange-900"
+                    onClick={() => updateOrder.mutate({ returnStatus: 'rejected' })}>
+                    Reject Return
+                  </Button>
                 </div>
               </div>
             </div>
@@ -313,13 +356,13 @@ function OrderDetailPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-sm text-gray-900 line-clamp-2 leading-tight">{item.productName}</h4>
-                    
+
                     {/* Attributes (Variant details like Size, Color) */}
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {item.sku && (
-                         <span className="text-[10px] font-mono text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
-                           SKU: {item.sku}
-                         </span>
+                        <span className="text-[10px] font-mono text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
+                          SKU: {item.sku}
+                        </span>
                       )}
                       {item.attributes && Object.entries(item.attributes).map(([key, value]) => (
                         <span key={key} className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 capitalize">
@@ -327,17 +370,17 @@ function OrderDetailPage() {
                         </span>
                       ))}
                     </div>
-                    
+
                     <p className="text-xs font-medium text-gray-600 mt-2">
-                      <span className="text-gray-400">Qty:</span> {item.quantity} 
-                      <span className="mx-2 text-gray-300">|</span> 
+                      <span className="text-gray-400">Qty:</span> {item.quantity}
+                      <span className="mx-2 text-gray-300">|</span>
                       <span className="text-gray-400">Price:</span> {formatCurrency(Number(item.sellingPrice))}
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0 pl-4">
                     <p className="font-black text-gray-900">{formatCurrency(Number(item.totalPrice))}</p>
                     {item.mrp > item.sellingPrice && (
-                       <p className="text-[10px] text-red-500 font-medium mt-1 line-through">{formatCurrency(Number(item.mrp * item.quantity))}</p>
+                      <p className="text-[10px] text-red-500 font-medium mt-1 line-through">{formatCurrency(Number(item.mrp * item.quantity))}</p>
                     )}
                   </div>
                 </div>
@@ -375,9 +418,9 @@ function OrderDetailPage() {
         <div className="lg:col-span-1 flex flex-col space-y-6">
           {/* Tracking */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col flex-grow">
-            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><Clock className="w-5 h-5 text-gray-500"/> Tracking Timeline</h3>
+            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><Clock className="w-5 h-5 text-gray-500" /> Tracking Timeline</h3>
             <div className="flex-grow overflow-y-auto">
-               <TrackingTimeline orderId={id} />
+              <TrackingTimeline orderId={id} />
             </div>
           </div>
         </div>
