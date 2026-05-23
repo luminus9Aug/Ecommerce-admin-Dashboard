@@ -19,9 +19,18 @@ function OrdersPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<string>("");
   const [paymentStatus, setPaymentStatus] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [search, setSearch] = useState("");
 
-  const { data, isLoading } = useOrders({ page, limit: 10, status: status as any, paymentStatus, search });
+  const { data, isLoading } = useOrders({
+    page,
+    limit: 10,
+    status: status as any,
+    paymentStatus,
+    paymentMethod: paymentMethod as any,
+    search,
+  });
+
 
   return (
     <div className="space-y-6">
@@ -53,6 +62,7 @@ function OrdersPage() {
             className="w-full sm:w-48 py-2 px-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
           >
             <option value="">All Statuses</option>
+            <option value="initiated">Initiated</option>
             <option value="pending">Pending</option>
             <option value="confirmed">Confirmed</option>
             <option value="processing">Processing</option>
@@ -77,6 +87,23 @@ function OrdersPage() {
             <option value="paid">Paid</option>
             <option value="failed">Failed</option>
             <option value="refunded">Refunded</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Filter className="text-gray-400 w-4 h-4" />
+          <select
+            value={paymentMethod}
+            onChange={(e) => {
+              setPaymentMethod(e.target.value);
+              setPage(1);
+            }}
+            className="w-full sm:w-48 py-2 px-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          >
+            <option value="">All Payment Methods</option>
+            <option value="cod">Cash on Delivery (COD)</option>
+            <option value="upi">UPI QR Payment</option>
+            <option value="stripe">Stripe Card</option>
+            <option value="razorpay">Razorpay</option>
           </select>
         </div>
       </div>
@@ -136,18 +163,26 @@ function OrdersPage() {
                         ${order.orderStatus === 'delivered' || order.orderStatus === 'completed' ? 'bg-green-100 text-green-800' :
                         order.orderStatus === 'cancelled' || order.orderStatus === 'returned' ? 'bg-red-100 text-red-800' :
                         order.orderStatus === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                        order.orderStatus === 'initiated' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
                         'bg-yellow-100 text-yellow-800'}`}>
                         {order.orderStatus.replace('_', ' ')}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
-                        ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
-                        order.paymentStatus === 'failed' ? 'bg-red-100 text-red-800' :
-                        order.paymentStatus === 'refunded' ? 'bg-purple-100 text-purple-800' :
-                        'bg-yellow-100 text-yellow-800'}`}>
-                        {order.paymentStatus}
-                      </span>
+                      <div className="flex flex-col items-start">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
+                          ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+                          order.paymentStatus === 'failed' ? 'bg-red-100 text-red-800' :
+                          order.paymentStatus === 'refunded' ? 'bg-purple-100 text-purple-800' :
+                          'bg-yellow-100 text-yellow-800'}`}>
+                          {order.paymentStatus}
+                        </span>
+                        {order.paymentMethod && (
+                          <span className="block text-[10px] text-gray-500 font-medium uppercase mt-1 ml-0.5">
+                            via {order.paymentMethod === 'cod' ? 'COD' : order.paymentMethod.toUpperCase()}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-right font-medium">
                       {formatCurrency(Number(order.totalAmount))}

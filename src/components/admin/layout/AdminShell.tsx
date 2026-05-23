@@ -5,7 +5,7 @@ import { TopBar } from "./TopBar";
 import { useSidebarStore } from "@/lib/admin/sidebar-store";
 import { useAdminProfile } from "@/lib/admin/hooks/useAdminAuth";
 
-const ALLOWED_ROLES = ["admin", "super_admin"] as const;
+const ALLOWED_ROLES = ["admin"] as const;
 
 export function AdminShell() {
   const collapsed = useSidebarStore((s) => s.collapsed);

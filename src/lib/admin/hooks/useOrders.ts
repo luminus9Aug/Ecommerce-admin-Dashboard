@@ -11,18 +11,9 @@ import type {
   OrderStatus,
   PaginatedResponse,
   PaymentMethod,
+  OrderFilters,
 } from "@/types/admin";
 
-export interface OrderFilters {
-  page?: number;
-  limit?: number;
-  search?: string;
-  status?: OrderStatus | "";
-  paymentStatus?: string;
-  paymentMethod?: PaymentMethod | "";
-  startDate?: string;
-  endDate?: string;
-}
 
 export function useOrders(filters: OrderFilters) {
   return useQuery<PaginatedResponse<Order>>({

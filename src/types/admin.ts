@@ -4,7 +4,7 @@ export interface AdminUser {
   firstName: string;
   lastName: string;
   email: string;
-  role: "admin" | "super_admin";
+  role: "admin";
 }
 
 // ─── Stats ───────────────────────────────────────────────
@@ -170,6 +170,7 @@ export interface CursorPaginatedResponse<T> {
 
 // ─── Order ───────────────────────────────────────────────
 export type OrderStatus =
+  | "initiated"
   | "pending"
   | "confirmed"
   | "processing"
@@ -179,8 +180,8 @@ export type OrderStatus =
   | "returned"
   | "completed";
 
-export type PaymentMethod = "cod" | "razorpay" | "stripe";
-export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+export type PaymentMethod = "cod" | "razorpay" | "stripe" | "upi";
+export type PaymentStatus = "pending" | "paid" | "failed" | "refunded" | "completed";
 
 export interface OrderItem {
   id: string;
@@ -243,8 +244,22 @@ export interface Order {
 }
 
 // ─── User ────────────────────────────────────────────────
-export type UserRole = "user" | "b2b" | "admin" | "super_admin";
+export type UserRole = "user" | "company" | "admin";
 export type UserStatus = "active" | "suspended";
+
+export interface UserAddress {
+  id: string;
+  userId: string;
+  fullName: string;
+  phoneNumber: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  addressType: "home" | "work" | "other";
+  isDefault: boolean;
+}
 
 export interface User {
   id: string;
@@ -254,11 +269,13 @@ export interface User {
   phone?: string;
   role: UserRole;
   status: UserStatus;
+  isActive: boolean;
   isApproved?: boolean;
   approvedAt?: string;
   emailVerified: boolean;
   companyName?: string;
   gstNumber?: string;
+  addresses?: UserAddress[];
   createdAt: string;
   updatedAt: string;
 }
@@ -599,3 +616,16 @@ export interface AdminInvoice {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface OrderFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: OrderStatus | "";
+  paymentStatus?: string;
+  paymentMethod?: PaymentMethod | "";
+  startDate?: string;
+  endDate?: string;
+  userId?: string;
+}
+
