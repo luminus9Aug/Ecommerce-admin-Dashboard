@@ -28,10 +28,10 @@ export function useCreateCategory() {
   });
 }
 
-export function useUpdateCategory(id: string) {
+export function useUpdateCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: Partial<CreateCategoryPayload>) =>
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateCategoryPayload> }) =>
       categoryAdapter.updateCategory(id, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QUERY_KEY });

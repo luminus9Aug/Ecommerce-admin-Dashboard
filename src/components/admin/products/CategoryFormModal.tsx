@@ -16,7 +16,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { ImageUploader } from "@/components/admin/shared/ImageUploader";
-import { useCreateCategory, useCategories } from "@/lib/admin/hooks/useCategories";
+import { useCreateCategory, useCategories, useUpdateCategory } from "@/lib/admin/hooks/useCategories";
 import type { Category } from "@/types/admin";
 
 // ─── Zod Schema ──────────────────────────────────────────────
@@ -58,20 +58,46 @@ interface CategoryFormModalProps {
 // ─── Component ───────────────────────────────────────────────
 export function CategoryFormModal({ open, onClose, initialData }: CategoryFormModalProps) {
   const createCategory = useCreateCategory();
+  const updateCategory = useUpdateCategory();
   const { data: allCategories = [] } = useCategories();
 
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
-      name: initialData?.name ?? "",
-      slug: initialData?.slug ?? "",
-      description: initialData?.description ?? "",
-      imageUrl: initialData?.imageUrl ?? "",
-      parentId: initialData?.parentId ?? "none",
+      name: "",
+      slug: "",
+      description: "",
+      imageUrl: "",
+      parentId: "none",
       sortOrder: 0,
-      isActive: initialData?.isActive ?? true,
+      isActive: true,
     },
   });
+
+  // Dynamically reset/populate form values when the modal opens or data changes
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: initialData?.name ?? "",
+        slug: initialData?.slug ?? "",
+        description: initialData?.description ?? "",
+        imageUrl: initialData?.imageUrl ?? "",
+        parentId: initialData?.parentId ?? "none",
+        sortOrder: initialData?.sortOrder ?? 0,
+        isActive: initialData?.isActive ?? true,
+      });
+    } else {
+      form.reset({
+        name: "",
+        slug: "",
+        description: "",
+        imageUrl: "",
+        parentId: "none",
+        sortOrder: 0,
+        isActive: true,
+      });
+    }
+  }, [initialData, open, form]);
 
   // Auto-generate slug when name changes (only if slug is empty)
   const name = form.watch("name");
@@ -83,7 +109,7 @@ export function CategoryFormModal({ open, onClose, initialData }: CategoryFormMo
   }, [name, form]);
 
   const onSubmit = async (values: CategoryFormValues) => {
-    await createCategory.mutateAsync({
+    const payload = {
       name: values.name,
       slug: values.slug || undefined,
       description: values.description || undefined,
@@ -91,7 +117,16 @@ export function CategoryFormModal({ open, onClose, initialData }: CategoryFormMo
       parentId: values.parentId === "none" ? undefined : (values.parentId || undefined),
       sortOrder: values.sortOrder,
       isActive: values.isActive,
-    });
+    };
+
+    if (initialData?.id) {
+      await updateCategory.mutateAsync({
+        id: initialData.id,
+        payload,
+      });
+    } else {
+      await createCategory.mutateAsync(payload);
+    }
     form.reset();
     onClose();
   };
@@ -236,8 +271,8 @@ export function CategoryFormModal({ open, onClose, initialData }: CategoryFormMo
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={createCategory.isPending}>
-                {createCategory.isPending ? "Saving..." : "Save Category"}
+              <Button type="submit" disabled={createCategory.isPending || updateCategory.isPending}>
+                {createCategory.isPending || updateCategory.isPending ? "Saving..." : "Save Category"}
               </Button>
             </DialogFooter>
           </form>

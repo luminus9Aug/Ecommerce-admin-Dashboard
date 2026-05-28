@@ -1,7 +1,7 @@
 # PROJECT_TRACKER
 
 ## Last Session
-2026-05-01
+2026-05-23
 
 ## Phases & Progress
 - Phase 1: Planning production-grade architecture (Completed - 100%)
@@ -21,6 +21,8 @@
 - 2026-05-01: Built `DashboardDailyStat` materialized view to fix analytics performance and inaccuracies. Implemented `DashboardStatSubscriber` to incrementally update daily stats on Order/User creation. Consolidated API requests into unified `/admin/stats/dashboard`.
 - 2026-05-01: Built fully functional Orders management interface: `admin.orders.index.tsx` (data tables, filters, search, pagination) and `admin.orders.$id.tsx` (detailed views, status updates). Resolved import path issues for utilities.
 - 2026-05-02: Fixed Checkout "Cart is empty" bug and "Guest cart lost on login" bug by implementing Continuous Cart Synchronization. Refactored `useCartStore` to sync with backend `CartModule` matching `useWishlistStore` architecture, updated backend `CartRepository` to include variant mappings, and added automated fetching upon login to ensure cross-device persistence.
+- 2026-05-23: Implemented Category Update & Validation. Added Edit action to data tables, introduced multi-mode form reset and submit logic in CategoryFormModal, refactored mutation hooks for hook-safety, and enforced type-safe class-validator schemas on NestJS category update requests.
+
 
 ## Known Issues / Blockers
 - None. All major authentication, data loading, and checkout bugs are resolved.
