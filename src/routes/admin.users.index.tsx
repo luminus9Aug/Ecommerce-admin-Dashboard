@@ -60,8 +60,8 @@ function UsersPage() {
         const roleVal = row.getValue("role") as string;
         return (
           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${roleVal === 'admin' ? 'bg-purple-100 text-purple-800' :
-              roleVal === 'company' ? 'bg-blue-100 text-blue-800' :
-                'bg-slate-100 text-slate-700'
+            roleVal === 'company' ? 'bg-blue-100 text-blue-800' :
+              'bg-slate-100 text-slate-700'
             }`}>
             {roleVal.replace("_", " ")}
           </span>
@@ -190,3 +190,4 @@ function UsersPage() {
     </div>
   );
 }
+//merge conflicts
