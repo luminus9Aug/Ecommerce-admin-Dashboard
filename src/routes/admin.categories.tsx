@@ -18,66 +18,66 @@ const useColumns = (
   onEdit: (category: Category) => void,
   onDelete: (id: string) => void
 ): ColumnDef<Category>[] => [
-  {
-    accessorKey: "name",
-    header: "Category",
-    cell: ({ row }) => {
-      const c = row.original;
-      return (
-        <div className="flex items-center gap-3">
-          {c.imageUrl ? (
-            <img src={c.imageUrl} alt={c.name} className="h-9 w-9 rounded object-cover" />
-          ) : (
-            <div className="h-9 w-9 rounded bg-slate-100" />
-          )}
-          <div>
-            <div className="font-medium">{c.name}</div>
-            <div className="text-xs text-muted-foreground">{c.slug}</div>
+    {
+      accessorKey: "name",
+      header: "Category",
+      cell: ({ row }) => {
+        const c = row.original;
+        return (
+          <div className="flex items-center gap-3">
+            {c.imageUrl ? (
+              <img src={c.imageUrl} alt={c.name} className="h-9 w-9 rounded object-cover" />
+            ) : (
+              <div className="h-9 w-9 rounded bg-slate-100" />
+            )}
+            <div>
+              <div className="font-medium">{c.name}</div>
+              <div className="text-xs text-muted-foreground">{c.slug}</div>
+            </div>
           </div>
-        </div>
-      );
+        );
+      },
     },
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground line-clamp-1">
-        {row.getValue("description") || "-"}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "isActive",
-    header: "Status",
-    cell: ({ row }) => (
-      <StatusBadge status={row.getValue("isActive") ? "active" : "inactive"} type="user" />
-    ),
-  },
-  {
-    id: "actions",
-    header: "",
-    cell: ({ row }) => (
-      <div className="flex items-center justify-end gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onEdit(row.original)}
-        >
-          <Edit className="h-4 w-4 text-slate-500 hover:text-slate-800" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive hover:text-destructive"
-          onClick={() => onDelete(row.original.id)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-    ),
-  },
-];
+    {
+      accessorKey: "description",
+      header: "Description",
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground line-clamp-1">
+          {row.getValue("description") || "-"}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "isActive",
+      header: "Status",
+      cell: ({ row }) => (
+        <StatusBadge status={row.getValue("isActive") ? "active" : "inactive"} type="user" />
+      ),
+    },
+    {
+      id: "actions",
+      header: "",
+      cell: ({ row }) => (
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onEdit(row.original)}
+          >
+            <Edit className="h-4 w-4 text-slate-500 hover:text-slate-800" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            onClick={() => onDelete(row.original.id)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
 function CategoriesPage() {
   const [modalOpen, setModalOpen] = useState(false);

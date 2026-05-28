@@ -161,10 +161,10 @@ function OrdersPage() {
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
                         ${order.orderStatus === 'delivered' || order.orderStatus === 'completed' ? 'bg-green-100 text-green-800' :
-                        order.orderStatus === 'cancelled' || order.orderStatus === 'returned' ? 'bg-red-100 text-red-800' :
-                        order.orderStatus === 'shipped' ? 'bg-blue-100 text-blue-800' :
-                        order.orderStatus === 'initiated' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
-                        'bg-yellow-100 text-yellow-800'}`}>
+                          order.orderStatus === 'cancelled' || order.orderStatus === 'returned' ? 'bg-red-100 text-red-800' :
+                            order.orderStatus === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                              order.orderStatus === 'initiated' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                                'bg-yellow-100 text-yellow-800'}`}>
                         {order.orderStatus.replace('_', ' ')}
                       </span>
                     </td>
@@ -172,9 +172,9 @@ function OrdersPage() {
                       <div className="flex flex-col items-start">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
                           ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
-                          order.paymentStatus === 'failed' ? 'bg-red-100 text-red-800' :
-                          order.paymentStatus === 'refunded' ? 'bg-purple-100 text-purple-800' :
-                          'bg-yellow-100 text-yellow-800'}`}>
+                            order.paymentStatus === 'failed' ? 'bg-red-100 text-red-800' :
+                              order.paymentStatus === 'refunded' ? 'bg-purple-100 text-purple-800' :
+                                'bg-yellow-100 text-yellow-800'}`}>
                           {order.paymentStatus}
                         </span>
                         {order.paymentMethod && (
@@ -202,7 +202,7 @@ function OrdersPage() {
             </tbody>
           </table>
         </div>
-        
+
         {/* Pagination */}
         {data && data.totalPages > 1 && (
           <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">

@@ -94,7 +94,7 @@ function UserDetailPage() {
                 {user.firstName} {user.lastName}
               </h1>
               <div className="flex flex-wrap items-center gap-2">
-                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
                   user.role === 'company' ? 'bg-blue-100 text-blue-800' :
                     'bg-slate-100 text-slate-700'
                   }`}>
